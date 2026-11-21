@@ -193,6 +193,7 @@ function parseCommands(raw){
   part=part.replace(/^(?:de l |de la |du |des |d |de |les |le |la |l |un |une )/,'').trim();
   if(!part){results.push({error:'Ingrédient manquant dans « '+segment+' »'});continue}
   // Normalise le pluriel seulement si un aliment connu le justifie.
+  if(/^melons?$/.test(part)){catalog['melon']={...(catalog['melon']||{}),unit:'pièce',grams:1000,aliases:['melon','melons']};part='melon';}
   let key=lookup(part);
   if(!key){const singular=part.replace(/s$/,'');key=lookup(singular)||part;
    if(!catalog[key])catalog[key]={unit:'g',grams:1,aliases:[key]};}
