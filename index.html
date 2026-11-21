@@ -195,9 +195,25 @@ function renderStock(){
  section('Produits frais, surgelés et autres aliments',Object.entries(state.stock).filter(([,v])=>v>0).sort(([a],[b])=>a.localeCompare(b,'fr')),'stock');
  section('Conserves et emballages',Object.entries(state.packages||{}).filter(([,v])=>v>0).sort(([a],[b])=>a.localeCompare(b,'fr')),'packages');
  section('Quantités à compléter',Object.entries(state.unknown||{}).sort(([a],[b])=>a.localeCompare(b,'fr')),'unknown');
- const note=document.createElement('p');note.className='muted small';note.textContent='Les emballages et les quantités inconnues ne sont pas convertis automatiquement en grammes pour les menus. Les valeurs connues en pièces sont des estimations de poids.';el.append(note);
+ const note=document.createElement('p');note.className='muted small';note.textContent='Les aliments présents avec une quantité inconnue sont utilisables dans les suggestions : leur quantité est à vérifier avant de cuisiner. Les emballages ne sont pas convertis automatiquement en grammes. Les valeurs connues en pièces sont des estimations de poids.';el.append(note);
 }
-function deficit(recipe,people){let missing=[];for(let [key,per] of Object.entries(recipe.ing)){let needed=per*people*(['oeufs','steaks hachés'].includes(key)?catalog[key].grams:1),have=state.stock[key]||0;if(have+0.01<needed)missing.push({key,need:needed-have})}return missing}function ingredientText(key,per,people){let c=catalog[key],q=per*people;return ['oeufs','steaks hachés'].includes(key)?`${q} ${key}`:`${q} g de ${key}`}
+// Une quantité inconnue signifie « présent, quantité à vérifier », pas « absent ».
+const PACKAGE_TO_CATALOG={'haricots verts (bocaux)':'haricots verts','petits pois (boîtes)':'petits pois'};
+function availability(key,needed){
+ const known=Number(state.stock[key])||0;
+ if(known>=needed-0.01)return {status:'known',available:known};
+ const unknownEntries=Object.entries(state.unknown||{}).filter(([name])=>name===key||UNKNOWN_TO_CATALOG[name]===key);
+ if(unknownEntries.length)return {status:'uncertain',available:known};
+ const packages=Object.entries(state.packages||{}).some(([name,count])=>PACKAGE_TO_CATALOG[name]===key&&Number(count)>0);
+ if(packages)return {status:'uncertain',available:known};
+ return {status:'missing',available:known};
+}
+function deficit(recipe,people){let missing=[],uncertain=[];for(let [key,per] of Object.entries(recipe.ing)){
+ let needed=per*people*(['oeufs','steaks hachés'].includes(key)?catalog[key].grams:1),a=availability(key,needed);
+ if(a.status==='missing')missing.push({key,need:needed-a.available});
+ if(a.status==='uncertain')uncertain.push({key,need:needed-a.available});
+}return {missing,uncertain}}
+function ingredientText(key,per,people){let c=catalog[key],q=per*people;return ['oeufs','steaks hachés'].includes(key)?`${q} ${key}`:`${q} g de ${key}`}
 // Valeurs nutritionnelles validées par recette et par portion, à compléter avec des sources vérifiées.
 // Absence de valeur = inconnue, jamais assimilée à zéro.
 const verifiedNutrition={};
@@ -221,10 +237,10 @@ function cookingGuidance(r){
 }
 function menuDetails(m,people){return [m.e,m.p].map(r=>`<h4>${escapeHtml(r.type==='entrée'?'Entrée — ':'Plat — ')}${escapeHtml(r.name)}</h4><p><strong>Ingrédients pour ${people} personne(s) :</strong></p><ul>${Object.entries(r.ing).map(([k,v])=>`<li>${escapeHtml(ingredientText(k,v,people))}</li>`).join('')}</ul><p><strong>Étapes :</strong></p><ol>${r.steps.map(s=>`<li>${escapeHtml(s)}</li>`).join('')}</ol>${cookingGuidance(r)}`).join('')+'<div class="warn small">⚠️ Valeurs nutritionnelles non vérifiées si elles ne sont pas affichées comme calculées. Les temps et températures de cuisson sont indicatifs.</div>';}
 function renderOffers(people){const root=document.getElementById('suggestions');root.replaceChildren();document.getElementById('refreshMenus').classList.toggle('hidden',menuPool.length===0);if(!offered.length){root.innerHTML='<div class="warn">Aucun nouveau menu compatible avec ces critères. Vous pouvez modifier les ingrédients disponibles ou autoriser quelques achats.</div>';return;}
- offered.forEach((m,i)=>{const div=document.createElement('div');div.className='recipe';const notice=m.nutrition.status==='unknown'?'<div class="warn small">⚠️ Potassium et sel non vérifiés : compatibilité médicale inconnue.</div>':`<div class="ok small">Potassium : ${Math.round(m.nutrition.potassiumMg)} mg ; sel : ${m.nutrition.saltG.toFixed(2)} g par personne.</div>`;const miss=m.missing.length?`<div class="warn small">Manque : ${m.missing.map(x=>escapeHtml(x.key+' ('+toDisplay(x.key,x.need)+')')).join(', ')}</div>`:'<div class="ok small">Tous les ingrédients sont disponibles.</div>';
- div.innerHTML=`<h3>Menu ${i+1}</h3><button type="button" class="secondary detail" style="width:100%;text-align:left;white-space:normal">🥗 ${escapeHtml(m.e.name)}<br>🍽️ ${escapeHtml(m.p.name)}<br><small>${people} personne(s) · environ ${m.time} min (estimation) · Voir la recette complète ▼</small></button>${miss}${notice}<div class="details hidden"></div>`;
+ offered.forEach((m,i)=>{const div=document.createElement('div');div.className='recipe';const notice=m.nutrition.status==='unknown'?'<div class="warn small">⚠️ Potassium et sel non vérifiés : compatibilité médicale inconnue.</div>':`<div class="ok small">Potassium : ${Math.round(m.nutrition.potassiumMg)} mg ; sel : ${m.nutrition.saltG.toFixed(2)} g par personne.</div>`;const uncertainNote=m.uncertain&&m.uncertain.length?`<div class="warn small">Quantité à vérifier avant de cuisiner : ${m.uncertain.map(x=>escapeHtml(x.key)).join(', ')}.</div>`:'';const miss=m.missing.length?`<div class="warn small">Manque : ${m.missing.map(x=>escapeHtml(x.key+' ('+toDisplay(x.key,x.need)+')')).join(', ')}</div>`:'<div class="ok small">Tous les ingrédients sont disponibles.</div>';
+ div.innerHTML=`<h3>Menu ${i+1}</h3><button type="button" class="secondary detail" style="width:100%;text-align:left;white-space:normal">🥗 ${escapeHtml(m.e.name)}<br>🍽️ ${escapeHtml(m.p.name)}<br><small>${people} personne(s) · environ ${m.time} min (estimation) · Voir la recette complète ▼</small></button>${miss}${uncertainNote}${notice}<div class="details hidden"></div>`;
  div.querySelector('.detail').onclick=()=>{const d=div.querySelector('.details');const wasHidden=d.classList.contains('hidden');d.classList.toggle('hidden');if(wasHidden)d.innerHTML=menuDetails(m,people)};
- const btn=document.createElement('button');btn.className='secondary';btn.textContent='Repas préparé : déduire les ingrédients';btn.disabled=!!m.missing.length;btn.onclick=()=>{if(!confirm(`Confirmer la préparation pour ${people} personne(s) et déduire les ingrédients du stock ?`))return;const combined={};for(const r of [m.e,m.p])for(const [k,v] of Object.entries(r.ing))combined[k]=(combined[k]||0)+v*people*(['oeufs','steaks hachés'].includes(k)?catalog[k].grams:1);for(const [k,g] of Object.entries(combined))state.stock[k]=Math.max(0,(state.stock[k]||0)-g);save();suggest();alert('Ingrédients déduits.')};div.append(btn);root.append(div)});
+ const btn=document.createElement('button');btn.className='secondary';btn.textContent='Repas préparé : déduire les ingrédients';btn.disabled=!!m.missing.length;btn.onclick=()=>{if(!confirm(`Confirmer la préparation pour ${people} personne(s) et déduire les ingrédients du stock ?`))return;const combined={};for(const r of [m.e,m.p])for(const [k,v] of Object.entries(r.ing))combined[k]=(combined[k]||0)+v*people*(['oeufs','steaks hachés'].includes(k)?catalog[k].grams:1);for(const [k,g] of Object.entries(combined))if((state.stock[k]||0)>0)state.stock[k]=Math.max(0,(state.stock[k]||0)-g);save();suggest();alert('Quantités connues déduites. Les ingrédients de quantité inconnue restent à vérifier et à mettre à jour manuellement.')};div.append(btn);root.append(div)});
 }
 function proteinFamily(r){const k=Object.keys(r.ing);if(k.includes('oeufs'))return 'oeufs';if(k.includes('poulet'))return 'poulet';if(k.includes('steaks hachés'))return 'boeuf';if(k.includes('saumon'))return 'saumon';if(k.includes('cabillaud'))return 'cabillaud';return r.id;}
 let lastFamilies=new Set(),expandedMenus=false;
@@ -232,7 +248,7 @@ function drawThree(){
  let candidates=menuPool.filter(m=>!shownMenus.has(m.e.id+'|'+m.p.id));
  if(!candidates.length){shownMenus.clear();candidates=menuPool.slice();}
  const chosen=[],usedFamilies=new Set(),usedPlats=new Set(),usedEntrees=new Set();
- // D'abord privilégier trois familles de protéines différentes, et changer de famille à chaque renouvellement.
+ // Choisir d'abord des familles de plats différentes, en privilégiant celles non affichées précédemment.
  for(const avoidPrevious of [true,false]){
   for(const m of candidates){if(chosen.length>=3)break;const family=proteinFamily(m.p);
    if(usedFamilies.has(family)||usedPlats.has(m.p.id)||usedEntrees.has(m.e.id))continue;
@@ -240,14 +256,13 @@ function drawThree(){
    chosen.push(m);usedFamilies.add(family);usedPlats.add(m.p.id);usedEntrees.add(m.e.id);
   }
  }
- // Si moins de trois familles existent, montrer des plats distincts, jamais trois variantes d'omelette.
- for(const m of candidates){if(chosen.length>=3)break;if(usedPlats.has(m.p.id)||usedFamilies.has(proteinFamily(m.p)))continue;chosen.push(m);usedPlats.add(m.p.id);usedFamilies.add(proteinFamily(m.p));}
+ // Ne jamais afficher plusieurs omelettes comme si elles étaient des plats différents.
  offered=chosen;lastFamilies=new Set(chosen.map(m=>proteinFamily(m.p)));
  for(const m of offered)shownMenus.add(m.e.id+'|'+m.p.id);
  renderOffers(Number(document.getElementById('people').value));
  const root=document.getElementById('suggestions');
- if(expandedMenus){const msg=document.createElement('div');msg.className='warn';msg.textContent='Pour varier les plats, certaines propositions nécessitent des ingrédients manquants (signalés sous chaque menu). Aucun ingrédient ne sera déduit avant confirmation.';root.prepend(msg);}
- if(offered.length<3){const msg=document.createElement('div');msg.className='warn';msg.textContent='Seulement '+offered.length+' plat(s) différent(s) possible(s) avec les critères actuels. Ajoutez des ingrédients ou passez à « Autoriser quelques ingrédients manquants ».';root.prepend(msg);}
+ if(expandedMenus){const msg=document.createElement('div');msg.className='warn';msg.textContent='Certaines propositions nécessitent des ingrédients à acheter, indiqués sous chaque menu. Aucun ingrédient ne sera déduit avant confirmation.';root.prepend(msg);}
+ if(offered.length<3){const msg=document.createElement('div');msg.className='warn';msg.textContent='Seulement '+offered.length+' famille(s) de plats possible(s) avec ces critères.';root.prepend(msg);}
 }
 function suggest(){
  const people=Math.floor(Number(document.getElementById('people').value)),max=Number(document.getElementById('minutes').value);
@@ -257,27 +272,49 @@ function suggest(){
  for(const e of entries)for(const p of plats){
   const time=Math.max(e.min,p.min)+5;if(time>max)continue;
   const combined={ing:{}};for(const r of [e,p])for(const [k,v] of Object.entries(r.ing))combined.ing[k]=(combined.ing[k]||0)+v;
-  const missing=deficit(combined,people);if(!allow&&missing.length)continue;
+  const availabilityResult=deficit(combined,people),missing=availabilityResult.missing,uncertain=availabilityResult.uncertain;if(!allow&&missing.length)continue;
   const nutrition=nutritionForMenu(e,p);if(nutrition.status==='exceeded')continue;
-  possibilities.push({e,p,time,missing,nutrition,score:missing.reduce((sum,m)=>sum+m.need,0)+missing.length*150});
+  possibilities.push({e,p,time,missing,uncertain,nutrition,score:missing.reduce((sum,m)=>sum+m.need,0)+missing.length*150});
  }
  possibilities.sort((a,b)=>a.score-b.score||a.time-b.time);
  const signature=JSON.stringify({people,max,allow,stock:state.stock,packages:state.packages});
  if(signature!==menuSignature){shownMenus.clear();lastFamilies.clear();menuSignature=signature;}
- menuPool=possibilities;expandedMenus=false;
- // L'inventaire strict peut n'autoriser que des omelettes : ne pas les répéter sous des noms différents.
- // La diversification est proposée seulement après demande de renouvellement, avec achats clairement signalés.
+ menuPool=possibilities;
+ // Si le stock strict ne permet qu'une famille de plats, ouvrir automatiquement
+ // la recherche à quelques achats pour ne pas afficher uniquement des omelettes.
+ if(!allow && new Set(menuPool.map(m=>proteinFamily(m.p))).size<3){
+  document.getElementById('preference').value='missing';
+  expandedMenus=true;
+  return suggestWithMissing(people,max,entries,plats);
+ }
+ expandedMenus=allow;
  drawThree();
+}
+function suggestWithMissing(people,max,entries,plats){
+ const possibilities=[];
+ for(const e of entries)for(const p of plats){
+  const time=Math.max(e.min,p.min)+5;if(time>max)continue;
+  const combined={ing:{}};for(const r of [e,p])for(const [k,v] of Object.entries(r.ing))combined.ing[k]=(combined.ing[k]||0)+v;
+  const availabilityResult=deficit(combined,people),missing=availabilityResult.missing,uncertain=availabilityResult.uncertain,nutrition=nutritionForMenu(e,p);
+  if(nutrition.status==='exceeded')continue;
+  possibilities.push({e,p,time,missing,uncertain,nutrition,score:missing.reduce((sum,m)=>sum+m.need,0)+missing.length*150});
+ }
+ possibilities.sort((a,b)=>a.score-b.score||a.time-b.time);
+ menuPool=possibilities;shownMenus.clear();lastFamilies.clear();
+ menuSignature=JSON.stringify({people,max,allow:true,stock:state.stock,packages:state.packages});
+ expandedMenus=true;drawThree();
 }
 function refreshDiverse(){
  if(!menuPool.length)return suggest();
- const availableFamilies=new Set(menuPool.map(m=>proteinFamily(m.p)));
- if(availableFamilies.size<3 && document.getElementById('preference').value==='available'){
-  document.getElementById('preference').value='missing';
-  expandedMenus=true;suggest();expandedMenus=true;
-  const root=document.getElementById('suggestions');const msg=document.createElement('div');msg.className='warn';msg.textContent='Pour diversifier les plats, le mode « Autoriser quelques ingrédients manquants » a été activé. Les ingrédients à acheter sont indiqués.';root.prepend(msg);
-  return;
+ const families=new Set(menuPool.map(m=>proteinFamily(m.p)));
+ if(families.size<3 && document.getElementById('preference').value==='available'){
+  document.getElementById('preference').value='missing';return suggest();
  }
+ // Les familles sont réordonnées à chaque clic pour éviter que les mêmes trois
+ // plats reviennent toujours en tête du catalogue.
+ const allFamilies=[...new Set(menuPool.map(m=>proteinFamily(m.p)))];
+ const familyPriority=allFamilies.filter(f=>!lastFamilies.has(f)).concat(allFamilies.filter(f=>lastFamilies.has(f)));
+ menuPool.sort((a,b)=>familyPriority.indexOf(proteinFamily(a.p))-familyPriority.indexOf(proteinFamily(b.p))||a.score-b.score);
  drawThree();
 }
 document.getElementById('suggest').onclick=suggest;
