@@ -220,21 +220,68 @@ function cookingGuidance(r){
  return txt;
 }
 function menuDetails(m,people){return [m.e,m.p].map(r=>`<h4>${escapeHtml(r.type==='entrée'?'Entrée — ':'Plat — ')}${escapeHtml(r.name)}</h4><p><strong>Ingrédients pour ${people} personne(s) :</strong></p><ul>${Object.entries(r.ing).map(([k,v])=>`<li>${escapeHtml(ingredientText(k,v,people))}</li>`).join('')}</ul><p><strong>Étapes :</strong></p><ol>${r.steps.map(s=>`<li>${escapeHtml(s)}</li>`).join('')}</ol>${cookingGuidance(r)}`).join('')+'<div class="warn small">⚠️ Valeurs nutritionnelles non vérifiées si elles ne sont pas affichées comme calculées. Les temps et températures de cuisson sont indicatifs.</div>';}
-function renderOffers(people){const root=document.getElementById('suggestions');root.replaceChildren();document.getElementById('refreshMenus').classList.toggle('hidden',menuPool.length<=3);if(!offered.length){root.innerHTML='<div class="warn">Aucun nouveau menu compatible avec ces critères. Vous pouvez modifier les ingrédients disponibles ou autoriser quelques achats.</div>';return;}
+function renderOffers(people){const root=document.getElementById('suggestions');root.replaceChildren();document.getElementById('refreshMenus').classList.toggle('hidden',menuPool.length===0);if(!offered.length){root.innerHTML='<div class="warn">Aucun nouveau menu compatible avec ces critères. Vous pouvez modifier les ingrédients disponibles ou autoriser quelques achats.</div>';return;}
  offered.forEach((m,i)=>{const div=document.createElement('div');div.className='recipe';const notice=m.nutrition.status==='unknown'?'<div class="warn small">⚠️ Potassium et sel non vérifiés : compatibilité médicale inconnue.</div>':`<div class="ok small">Potassium : ${Math.round(m.nutrition.potassiumMg)} mg ; sel : ${m.nutrition.saltG.toFixed(2)} g par personne.</div>`;const miss=m.missing.length?`<div class="warn small">Manque : ${m.missing.map(x=>escapeHtml(x.key+' ('+toDisplay(x.key,x.need)+')')).join(', ')}</div>`:'<div class="ok small">Tous les ingrédients sont disponibles.</div>';
  div.innerHTML=`<h3>Menu ${i+1}</h3><button type="button" class="secondary detail" style="width:100%;text-align:left;white-space:normal">🥗 ${escapeHtml(m.e.name)}<br>🍽️ ${escapeHtml(m.p.name)}<br><small>${people} personne(s) · environ ${m.time} min (estimation) · Voir la recette complète ▼</small></button>${miss}${notice}<div class="details hidden"></div>`;
  div.querySelector('.detail').onclick=()=>{const d=div.querySelector('.details');const wasHidden=d.classList.contains('hidden');d.classList.toggle('hidden');if(wasHidden)d.innerHTML=menuDetails(m,people)};
  const btn=document.createElement('button');btn.className='secondary';btn.textContent='Repas préparé : déduire les ingrédients';btn.disabled=!!m.missing.length;btn.onclick=()=>{if(!confirm(`Confirmer la préparation pour ${people} personne(s) et déduire les ingrédients du stock ?`))return;const combined={};for(const r of [m.e,m.p])for(const [k,v] of Object.entries(r.ing))combined[k]=(combined[k]||0)+v*people*(['oeufs','steaks hachés'].includes(k)?catalog[k].grams:1);for(const [k,g] of Object.entries(combined))state.stock[k]=Math.max(0,(state.stock[k]||0)-g);save();suggest();alert('Ingrédients déduits.')};div.append(btn);root.append(div)});
 }
-function drawThree(){const remaining=menuPool.filter(m=>!shownMenus.has(m.e.id+'|'+m.p.id));if(!remaining.length){shownMenus.clear();}const candidates=menuPool.filter(m=>!shownMenus.has(m.e.id+'|'+m.p.id));const chosen=[];const distinctPlats=new Set(),distinctEntrees=new Set();for(const m of candidates){if(chosen.length>=3)break;if(distinctPlats.has(m.p.id)||distinctEntrees.has(m.e.id))continue;chosen.push(m);distinctPlats.add(m.p.id);distinctEntrees.add(m.e.id)}for(const m of candidates){if(chosen.length>=3)break;if(!chosen.includes(m))chosen.push(m)}offered=chosen;for(const m of offered)shownMenus.add(m.e.id+'|'+m.p.id);renderOffers(Number(document.getElementById('people').value));}
-function suggest(){const people=Math.floor(Number(document.getElementById('people').value)),max=Number(document.getElementById('minutes').value);if(!(people>=1&&people<=12)){alert('Choisissez de 1 à 12 personnes.');return;}const allow=document.getElementById('preference').value==='missing',entries=recipes.filter(r=>r.type==='entrée'),plats=recipes.filter(r=>r.type==='plat');const possibilities=[];
- for(const e of entries)for(const p of plats){const time=Math.max(e.min,p.min)+5;if(time>max)continue;const combined={ing:{}};for(const r of [e,p])for(const [k,v] of Object.entries(r.ing))combined.ing[k]=(combined.ing[k]||0)+v;const missing=deficit(combined,people);if(!allow&&missing.length)continue;const nutrition=nutritionForMenu(e,p);if(nutrition.status==='exceeded')continue;possibilities.push({e,p,time,missing,nutrition,score:missing.reduce((sum,m)=>sum+m.need,0)+missing.length*150});}
- possibilities.sort((a,b)=>a.score-b.score||a.time-b.time);const signature=JSON.stringify({people,max,allow,stock:state.stock,packages:state.packages});if(signature!==menuSignature){shownMenus.clear();menuSignature=signature;}menuPool=possibilities;
- // Shuffle ties to vary the choices while prioritizing available ingredients.
- for(let i=0;i<menuPool.length;){let j=i+1;while(j<menuPool.length&&menuPool[j].score===menuPool[i].score)j++;for(let k=j-1;k>i;k--){const t=i+Math.floor(Math.random()*(k-i+1));[menuPool[k],menuPool[t]]=[menuPool[t],menuPool[k]];}i=j;}
- drawThree();}
+function proteinFamily(r){const k=Object.keys(r.ing);if(k.includes('oeufs'))return 'oeufs';if(k.includes('poulet'))return 'poulet';if(k.includes('steaks hachés'))return 'boeuf';if(k.includes('saumon'))return 'saumon';if(k.includes('cabillaud'))return 'cabillaud';return r.id;}
+let lastFamilies=new Set(),expandedMenus=false;
+function drawThree(){
+ let candidates=menuPool.filter(m=>!shownMenus.has(m.e.id+'|'+m.p.id));
+ if(!candidates.length){shownMenus.clear();candidates=menuPool.slice();}
+ const chosen=[],usedFamilies=new Set(),usedPlats=new Set(),usedEntrees=new Set();
+ // D'abord privilégier trois familles de protéines différentes, et changer de famille à chaque renouvellement.
+ for(const avoidPrevious of [true,false]){
+  for(const m of candidates){if(chosen.length>=3)break;const family=proteinFamily(m.p);
+   if(usedFamilies.has(family)||usedPlats.has(m.p.id)||usedEntrees.has(m.e.id))continue;
+   if(avoidPrevious&&lastFamilies.has(family))continue;
+   chosen.push(m);usedFamilies.add(family);usedPlats.add(m.p.id);usedEntrees.add(m.e.id);
+  }
+ }
+ // Si moins de trois familles existent, montrer des plats distincts, jamais trois variantes d'omelette.
+ for(const m of candidates){if(chosen.length>=3)break;if(usedPlats.has(m.p.id)||usedFamilies.has(proteinFamily(m.p)))continue;chosen.push(m);usedPlats.add(m.p.id);usedFamilies.add(proteinFamily(m.p));}
+ offered=chosen;lastFamilies=new Set(chosen.map(m=>proteinFamily(m.p)));
+ for(const m of offered)shownMenus.add(m.e.id+'|'+m.p.id);
+ renderOffers(Number(document.getElementById('people').value));
+ const root=document.getElementById('suggestions');
+ if(expandedMenus){const msg=document.createElement('div');msg.className='warn';msg.textContent='Pour varier les plats, certaines propositions nécessitent des ingrédients manquants (signalés sous chaque menu). Aucun ingrédient ne sera déduit avant confirmation.';root.prepend(msg);}
+ if(offered.length<3){const msg=document.createElement('div');msg.className='warn';msg.textContent='Seulement '+offered.length+' plat(s) différent(s) possible(s) avec les critères actuels. Ajoutez des ingrédients ou passez à « Autoriser quelques ingrédients manquants ».';root.prepend(msg);}
+}
+function suggest(){
+ const people=Math.floor(Number(document.getElementById('people').value)),max=Number(document.getElementById('minutes').value);
+ if(!(people>=1&&people<=12)){alert('Choisissez de 1 à 12 personnes.');return;}
+ const allow=document.getElementById('preference').value==='missing',entries=recipes.filter(r=>r.type==='entrée'),plats=recipes.filter(r=>r.type==='plat');
+ const possibilities=[];
+ for(const e of entries)for(const p of plats){
+  const time=Math.max(e.min,p.min)+5;if(time>max)continue;
+  const combined={ing:{}};for(const r of [e,p])for(const [k,v] of Object.entries(r.ing))combined.ing[k]=(combined.ing[k]||0)+v;
+  const missing=deficit(combined,people);if(!allow&&missing.length)continue;
+  const nutrition=nutritionForMenu(e,p);if(nutrition.status==='exceeded')continue;
+  possibilities.push({e,p,time,missing,nutrition,score:missing.reduce((sum,m)=>sum+m.need,0)+missing.length*150});
+ }
+ possibilities.sort((a,b)=>a.score-b.score||a.time-b.time);
+ const signature=JSON.stringify({people,max,allow,stock:state.stock,packages:state.packages});
+ if(signature!==menuSignature){shownMenus.clear();lastFamilies.clear();menuSignature=signature;}
+ menuPool=possibilities;expandedMenus=false;
+ // L'inventaire strict peut n'autoriser que des omelettes : ne pas les répéter sous des noms différents.
+ // La diversification est proposée seulement après demande de renouvellement, avec achats clairement signalés.
+ drawThree();
+}
+function refreshDiverse(){
+ if(!menuPool.length)return suggest();
+ const availableFamilies=new Set(menuPool.map(m=>proteinFamily(m.p)));
+ if(availableFamilies.size<3 && document.getElementById('preference').value==='available'){
+  document.getElementById('preference').value='missing';
+  expandedMenus=true;suggest();expandedMenus=true;
+  const root=document.getElementById('suggestions');const msg=document.createElement('div');msg.className='warn';msg.textContent='Pour diversifier les plats, le mode « Autoriser quelques ingrédients manquants » a été activé. Les ingrédients à acheter sont indiqués.';root.prepend(msg);
+  return;
+ }
+ drawThree();
+}
 document.getElementById('suggest').onclick=suggest;
-document.getElementById('refreshMenus').onclick=()=>{if(!menuPool.length)return suggest();drawThree();};
+document.getElementById('refreshMenus').onclick=refreshDiverse;
 function renderRecipes(){let root=document.getElementById('recipelist');root.replaceChildren();for(let r of recipes){let div=document.createElement('details');div.className='recipe';let summary=document.createElement('summary');summary.textContent=`${r.type==='entrée'?'🥗':'🍲'} ${r.name} · ${r.min} min`;div.append(summary);let body=document.createElement('div');body.innerHTML=`<p><strong>Pour 2 personnes :</strong></p><ul>${Object.entries(r.ing).map(([k,v])=>`<li>${escapeHtml(ingredientText(k,v,2))}</li>`).join('')}</ul><ol>${r.steps.map(s=>`<li>${escapeHtml(s)}</li>`).join('')}</ol>`;div.append(body);root.append(div)}}
 for(let key of Object.keys(catalog)){let opt=document.createElement('option');opt.value=key;document.getElementById('foodlist').append(opt)}document.getElementById('defaultPeople').value=state.settings.people;document.getElementById('people').value=state.settings.people;document.getElementById('saveSettings').onclick=()=>{let p=Math.floor(Number(document.getElementById('defaultPeople').value));if(p<1||p>12)return alert('De 1 à 12 personnes.');state.settings.people=p;document.getElementById('people').value=p;save();alert('Préférence enregistrée.')};document.querySelectorAll('[data-tab]').forEach(b=>b.onclick=()=>{document.querySelectorAll('.page').forEach(p=>p.classList.add('hidden'));document.getElementById(b.dataset.tab).classList.remove('hidden');document.querySelectorAll('[data-tab]').forEach(x=>x.classList.toggle('active',x===b))});document.getElementById('export').onclick=()=>{let blob=new Blob([JSON.stringify({version:3,...state},null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='mon-frigo-sauvegarde.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),2000)};document.getElementById('importBtn').onclick=()=>document.getElementById('importFile').click();document.getElementById('importFile').onchange=async e=>{try{let obj=JSON.parse(await e.target.files[0].text());if(!obj.stock||!obj.settings||typeof obj.stock!=='object')throw Error();let safe={};for(let [k,v] of Object.entries(obj.stock))if(catalog[k]&&Number.isFinite(v)&&v>=0)safe[k]=v;if(!confirm('Remplacer les données locales par cette sauvegarde ?'))return;state={stock:safe,packages:obj.packages&&typeof obj.packages==='object'?Object.fromEntries(Object.entries(obj.packages).filter(([k,v])=>k in INITIAL_PACKAGES&&Number.isFinite(v)&&v>=0)): {...INITIAL_PACKAGES},packagesInitialized:true,unknown:obj.unknown&&typeof obj.unknown==='object'?obj.unknown:{},unknownInitialized:true,settings:{people:Math.min(12,Math.max(1,Number(obj.settings.people)||2))}};save();location.reload()}catch{alert('Sauvegarde invalide.')}};document.getElementById('reset').onclick=()=>{if(confirm('Vider définitivement l’inventaire local ?')){state.stock={};state.packages={};state.unknown={};state.unknownInitialized=true;state.packagesInitialized=true;save()}};renderStock();renderRecipes();
 </script></body></html>
