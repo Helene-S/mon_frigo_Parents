@@ -1,5 +1,14 @@
 <!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#246b51"><title>Mon Frigo V1 — Menus et inventaire</title><style>
 :root{font-family:system-ui,-apple-system,sans-serif;color:#1c2924;background:#f5f7f4}*{box-sizing:border-box}body{margin:0}.wrap{max-width:780px;margin:auto;padding:18px}header{display:flex;justify-content:space-between;align-items:center}h1{margin:0;font-size:1.8rem}h2{font-size:1.2rem;margin:0 0 14px}.muted{color:#596a61;font-size:.9rem}.card{background:white;border:1px solid #dce5de;border-radius:17px;padding:18px;margin:15px 0;box-shadow:0 2px 7px #183b2810}button,input,select,textarea{font:inherit}button{background:#246b51;color:white;border:0;border-radius:11px;padding:12px 15px;cursor:pointer;font-weight:650}button.secondary{background:#e5eee7;color:#24503e}button.ghost{background:transparent;color:#24503e;border:1px solid #a9c5b3}button:disabled{opacity:.4}input,select,textarea{border:1px solid #b6c8bd;border-radius:10px;padding:12px;width:100%;background:white}textarea{min-height:82px}label{display:block;font-weight:600;margin:12px 0 5px}.actions,.inline{display:flex;gap:9px;flex-wrap:wrap;align-items:center}.actions button{flex:1}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.grid>*{min-width:0}.tabs{display:flex;gap:6px;overflow:auto;margin-top:18px}.tabs button{white-space:nowrap;background:#e7eee8;color:#284d3b}.tabs button.active{background:#246b51;color:white}.row{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:10px 0;border-bottom:1px solid #edf1ee}.row:last-child{border:0}.small{font-size:.83rem}.pill{display:inline-block;border-radius:99px;padding:5px 9px;background:#e7eee8;color:#2d5a42;font-size:.8rem}.warn{background:#fff4db;color:#704c00;padding:12px;border-radius:9px}.ok{background:#e7f5eb;color:#18583b;padding:12px;border-radius:9px}.hidden{display:none!important}ul{padding-left:22px}li{margin:7px 0}.recipe{border:1px solid #d9e5db;border-radius:12px;padding:13px;margin:12px 0}.recipe h3{margin:0 0 7px}.number{max-width:90px}.footer{margin:20px 0 35px} @media(max-width:450px){.grid{grid-template-columns:1fr}.wrap{padding:12px}button{padding:11px}}
+
+/* Photographies des recettes proposées */
+.menu-photos{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:12px 0}
+.menu-photo{margin:0;min-width:0;border:1px solid #d8dfd9;border-radius:12px;overflow:hidden;background:#f1f3ef}
+.menu-photo img{width:100%;height:145px;object-fit:cover;display:block;background:#e8eee9}
+.menu-photo figcaption{font-size:12px;padding:7px 9px;line-height:1.35}
+.menu-photo .photo-status{display:flex;align-items:center;justify-content:center;min-height:145px;color:#59685d;font-size:12px;padding:12px;text-align:center}
+.menu-photo .photo-credit{font-size:10px;color:#657369;display:block}
+@media(max-width:390px){.menu-photo img,.menu-photo .photo-status{height:115px;min-height:115px}}
 </style></head><body><div class="wrap"><header><div><h1>🥕 Mon Frigo</h1><div class="muted">Cuisine familiale · sans abonnement ni IA</div></div><span class="pill">V1 locale</span></header><nav class="tabs" id="tabs"><button data-tab="menu" class="active">🍽️ Menus</button><button data-tab="stock">🧺 Inventaire</button><button data-tab="recipes">📖 Recettes</button><button data-tab="settings">⚙️ Réglages</button></nav>
 <section id="menu" class="page"><div class="card"><h2>Qu'est-ce qu'on mange ?</h2><div class="grid"><div><label>Nombre de personnes</label><input id="people" type="number" min="1" max="12" value="2"></div><div><label>Temps maximum</label><select id="minutes"><option value="15">15 minutes</option><option value="20">20 minutes</option><option value="25">25 minutes</option><option value="30">30 minutes</option><option value="45">45 minutes</option><option value="60" selected>1 heure</option></select></div></div><label>Priorité des recettes</label><select id="speedPriority"><option value="balanced" selected>Variété + recettes express</option><option value="express">Priorité aux menus de moins de 30 min</option><option value="discovery">Découverte de nouvelles saveurs</option></select><p class="muted small">Les recettes express restent proposées même si vous autorisez jusqu’à 1 heure. La durée concerne le menu complet.</p><label>Ingrédients</label><select id="preference"><option value="missing" selected>Toutes les recettes (achats signalés)</option><option value="available">Uniquement ce que j'ai</option></select><div class="warn" role="status"><strong>Filtre nutritionnel :</strong> plafonds par personne et par repas (entrée + plat) : potassium 1 500 mg, sel 2 g. Les menus dont un dépassement est connu sont exclus. Les menus sans valeurs nutritionnelles vérifiées restent proposés avec un avertissement, sans garantie de compatibilité médicale. Aucune question sur les repas précédents.</div><p><button id="suggest">Proposer 3 menus</button></p><div id="suggestions"></div><p><button id="refreshMenus" class="secondary hidden" type="button">🔄 Proposer 3 autres menus</button></p></div></section>
 <section id="stock" class="page hidden"><div class="card"><h2>Modifier mon inventaire</h2><div class="warn small">Tous les produits identifiés sont préchargés, y compris ceux dont la quantité est inconnue. Modifiez directement les quantités dans le tableau ci-dessous ou supprimez les lignes. Les quantités inconnues ne sont jamais considérées comme disponibles en quantité illimitée.</div><p class="muted">Écrivez par exemple « J'ajoute 4 carottes », « J'ai utilisé 2 endives », « Il me reste 3 oranges », « Je n'ai plus de riz ». Vous pouvez citer plusieurs aliments dans une même phrase. Sans quantité précisée, l’aliment sera ajouté avec « quantité à compléter ». Le tableau se met à jour immédiatement.</p><textarea id="command" placeholder="J'ai acheté 4 carottes"></textarea><p class="muted small">Pour les conserves, indiquez le nombre d’emballages, par exemple « J’ajoute 2 boîtes de maïs » ou « Je n’ai plus de pesto ».</p><p><button id="parse">Mettre à jour mon inventaire</button></p><div id="parsed"></div><hr><h2>Ajouter manuellement</h2><div class="grid"><div><label>Aliment</label><input id="food" list="foodlist" placeholder="Ex. carottes"><datalist id="foodlist"></datalist></div><div><label>Quantité</label><input id="amount" type="number" min="0.01" step="any" value="1"></div><div><label>Unité</label><select id="unit"><option value="pièce">Pièce(s)</option><option value="g">Grammes</option><option value="kg">Kilogrammes</option><option value="portion">Portion(s)</option></select></div><div><label>Lieu</label><select id="location"><option value="frigo">Réfrigérateur</option><option value="congelateur">Congélateur</option><option value="placard">Placard</option></select></div></div><p><button id="add">Ajouter au stock</button></p></div><div class="card"><h2>Mes aliments</h2><p class="muted small">Saisissez une quantité et cliquez sur « Enregistrer ». Le bouton « Supprimer » retire le produit de la liste. Les valeurs inconnues sont à compléter.</p><div id="stocklist"></div></div></section>
@@ -178,7 +187,7 @@ const ACTIONS=[
 function stripAction(segment){for(const a of ACTIONS){const m=segment.match(a.re);if(m)return {kind:a.kind,rest:segment.slice(m[0].length).trim()}}return null}
 function parseCommands(raw){
  // Analyse chaque proposition : action -> quantité/unité -> aliment. Aucun service externe.
- const normalized=norm(raw).replace(/\b(?:ainsi que|ainsi qu|et aussi)\b/g,',').replace(/\s+et\s+(?=(?:j |je |nous |on |il |rajoute|ajoute|achete|retire|enleve|supprime))/g,',');
+ const normalized=norm(raw).replace(/^a\s+(?=rajoute|ajoute|achete)/,'').replace(/\b(?:ainsi que|ainsi qu|et aussi)\b/g,',').replace(/\s+et\s+(?=(?:j |je |nous |on |il |rajoute|ajoute|achete|retire|enleve|supprime))/g,',');
  const segments=normalized.split(/[,;\n]+|\s+et\s+/).map(x=>x.trim()).filter(Boolean);
  const results=[];let active=null;
  for(const segment of segments){
@@ -187,13 +196,14 @@ function parseCommands(raw){
   let part=(action?action.rest:segment).replace(/^(?:encore|seulement|de la|de l |du |des |de )\s*/,'').trim();
   // 2 melons, 500 g de veau, deux melons, un melon, 2 bouteilles d’huile.
   const words={un:1,une:1,deux:2,trois:3,quatre:4,cinq:5,six:6,sept:7,huit:8,neuf:9,dix:10};
-  const m=part.match(/^(\d+(?:[.,]\d+)?|un|une|deux|trois|quatre|cinq|six|sept|huit|neuf|dix)\b\s*(kg|kilogrammes?|grammes?|g|ml|cl|litres?|l|portions?|pieces?|bouteilles?|pots?|paquets?|boites?|bocaux)?\b\s*/);
+  const m=part.match(/^(\d+(?:[.,]\d+)?|un|une|deux|trois|quatre|cinq|six|sept|huit|neuf|dix)(?:\s*(kg|kilogrammes?|grammes?|g|ml|cl|litres?|l|portions?|pieces?|bouteilles?|pots?|paquets?|boites?|bocaux))?(?=\s|$)\s*/);
   let qty=m?(words[m[1]]??cleanNum(m[1])):null,unit=m?.[2]||null;
   if(m)part=part.slice(m[0].length).trim();
   part=part.replace(/^(?:de l |de la |du |des |d |de |les |le |la |l |un |une )/,'').trim();
   if(!part){results.push({error:'Ingrédient manquant dans « '+segment+' »'});continue}
   // Normalise le pluriel seulement si un aliment connu le justifie.
   if(/^melons?$/.test(part)){catalog['melon']={...(catalog['melon']||{}),unit:'pièce',grams:1000,aliases:['melon','melons']};part='melon';}
+  if(/^(?:pate|pates|pates alimentaires)$/.test(part))part='pâtes';
   let key=lookup(part);
   if(!key){const singular=part.replace(/s$/,'');key=lookup(singular)||part;
    if(!catalog[key])catalog[key]={unit:'g',grams:1,aliases:[key]};}
@@ -332,9 +342,70 @@ function cookingGuidance(r){
  return html;
 }
 function menuDetails(m,people){return [m.e,m.p].map(r=>`<h4>${escapeHtml(r.type==='entrée'?'Entrée — ':'Plat — ')}${escapeHtml(r.name)}${r.region?' — '+escapeHtml(r.region):''}</h4><p><strong>Ingrédients pour ${people} personne(s) :</strong></p><ul>${Object.entries(r.ing).map(([k,v])=>`<li>${escapeHtml(ingredientText(k,v,people))}</li>`).join('')}</ul><p><strong>Étapes :</strong></p><ol>${r.steps.map(s=>`<li>${escapeHtml(s)}</li>`).join('')}</ol>${cookingGuidance(r)}`).join('')+'<div class="warn small">⚠️ Valeurs nutritionnelles non vérifiées si elles ne sont pas affichées comme calculées. Les temps et températures de cuisson sont indicatifs.</div>';}
+
+// Photographies libres de Wikimedia Commons : recherche par nom du plat, sans clé ni compte.
+// Une photo n'est affichée que si elle correspond suffisamment au nom de la recette.
+const photoCache=new Map();
+function photoSearchTerm(r){
+ const n=r.name.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+ const terms=[
+  [/galette.*sarrasin|galette complete/,'galette bretonne'],[/flammekueche/,'flammkuchen'],
+  [/truffade/,'truffade'],[/moussaka/,'moussaka'],[/tikka masala/,'chicken tikka masala'],
+  [/tajine/,'chicken tagine'],[/kefta/,'kofta'],[/parmigiana/,'eggplant parmigiana'],
+  [/piperade/,'piperade'],[/tortilla espagnole/,'tortilla de patatas'],
+  [/quiche lorraine/,'quiche lorraine'],[/ratatouille/,'ratatouille'],
+  [/parmentier/,'hachis parmentier'],[/blanquette/,'blanquette'],
+  [/endives au jambon/,'endives au jambon'],[/poulet basquaise/,'poulet basquaise'],
+  [/taboule/,'tabbouleh'],[/tzatziki/,'tzatziki'],[/curry/,'curry'],
+  [/salade de carottes|carottes rapees/,'carrot salad'],
+  [/salade de concombre/,'cucumber salad'],[/salade de tomates/,'tomato salad']
+ ];
+ for(const [pattern,term] of terms)if(pattern.test(n))return term;
+ return r.name.replace(/\b(express|maison|doux|rapide|facile|traditionnel|aux|avec|au|a la|de|des|du|et)\b/gi,' ').replace(/\s+/g,' ').trim();
+}
+async function fetchRecipePhoto(r){
+ const query=photoSearchTerm(r);
+ if(photoCache.has(query))return photoCache.get(query);
+ const pending=(async()=>{
+  const endpoint='https://commons.wikimedia.org/w/api.php';
+  const params=new URLSearchParams({action:'query',generator:'search',gsrsearch:'filetype:bitmap '+query,gsrnamespace:'6',gsrlimit:'8',prop:'imageinfo',iiprop:'url|mime|extmetadata',iiurlwidth:'600',format:'json',origin:'*'});
+  const controller=new AbortController();
+  const timeout=setTimeout(()=>controller.abort(),6500);
+  try{
+   const res=await fetch(endpoint+'?'+params,{signal:controller.signal});
+   if(!res.ok)throw Error('Photos indisponibles');
+   const data=await res.json();
+   const pages=Object.values(data.query?.pages||{});
+   const acceptable=pages.filter(p=>{const info=p.imageinfo?.[0];return info&&/^image\/(jpeg|png|webp)$/.test(info.mime||'')&&/^https:\/\/upload\.wikimedia\.org\//.test(info.thumburl||'')&&!/logo|icon|diagram|drawing|illustration|map|menu|restaurant interior/i.test(p.title||'');});
+   if(!acceptable.length)return null;
+   const chosen=acceptable[0],info=chosen.imageinfo[0];
+   return {url:info.thumburl,source:info.descriptionurl||'https://commons.wikimedia.org/',title:chosen.title.replace(/^File:/,'')};
+  }catch{return null;}finally{clearTimeout(timeout);}
+ })();
+ photoCache.set(query,pending);return pending;
+}
+function addMenuPhotos(container,recipes){
+ const strip=document.createElement('div');strip.className='menu-photos';
+ recipes.forEach(r=>{
+  const fig=document.createElement('figure');fig.className='menu-photo';
+  const placeholder=document.createElement('div');placeholder.className='photo-status';placeholder.textContent='Photo en cours de recherche…';
+  const caption=document.createElement('figcaption');caption.textContent=(r.type==='entrée'?'Entrée : ':'Plat : ')+r.name;
+  fig.append(placeholder,caption);strip.append(fig);
+  fetchRecipePhoto(r).then(photo=>{
+   if(!fig.isConnected)return;
+   if(!photo){placeholder.textContent='Photo non disponible';return;}
+   const img=document.createElement('img');img.alt='Photographie illustrative : '+r.name;img.loading='lazy';img.referrerPolicy='no-referrer';
+   img.onerror=()=>{img.replaceWith(placeholder);placeholder.textContent='Photo non disponible';caption.querySelector('.photo-credit')?.remove();};
+   placeholder.replaceWith(img);img.src=photo.url;
+   const credit=document.createElement('a');credit.className='photo-credit';credit.href=photo.source;credit.target='_blank';credit.rel='noopener noreferrer';credit.textContent='Photo : Wikimedia Commons';caption.append(credit);
+  });
+ });
+ container.append(strip);
+}
 function renderOffers(people){const root=document.getElementById('suggestions');root.replaceChildren();document.getElementById('refreshMenus').classList.toggle('hidden',menuPool.length===0);if(!offered.length){root.innerHTML='<div class="warn">Aucun nouveau menu compatible avec ces critères. Vous pouvez modifier les ingrédients disponibles ou autoriser quelques achats.</div>';return;}
  offered.forEach((m,i)=>{const div=document.createElement('div');div.className='recipe';const notice=m.nutrition.status==='unknown'?'<div class="warn small">⚠️ Potassium et sel non vérifiés : compatibilité médicale inconnue.</div>':`<div class="ok small">Potassium : ${Math.round(m.nutrition.potassiumMg)} mg ; sel : ${m.nutrition.saltG.toFixed(2)} g par personne.</div>`;const uncertainNote=m.uncertain&&m.uncertain.length?`<div class="warn small">Quantité à vérifier avant de cuisiner : ${m.uncertain.map(x=>escapeHtml(x.key)).join(', ')}.</div>`:'';const miss=m.missing.length?`<div class="warn small">Manque : ${m.missing.map(x=>escapeHtml(x.key+' ('+toDisplay(x.key,x.need)+')')).join(', ')}</div>`:'<div class="ok small">Tous les ingrédients sont disponibles.</div>';
  div.innerHTML=`<h3>Menu ${i+1}</h3><button type="button" class="secondary detail" style="width:100%;text-align:left;white-space:normal">🥗 ${escapeHtml(m.e.name)}<br>🍽️ ${escapeHtml(m.p.name)}<br><small>${people} personne(s) · ${m.time<30?'⚡ EXPRESS · ':''}environ ${m.time} min (estimation) · Voir la recette complète ▼</small></button>${miss}${uncertainNote}${notice}<div class="details hidden"></div>`;
+  addMenuPhotos(div,[m.e,m.p]);
  div.querySelector('.detail').onclick=()=>{const d=div.querySelector('.details');const wasHidden=d.classList.contains('hidden');d.classList.toggle('hidden');if(wasHidden)d.innerHTML=menuDetails(m,people)};
  const btn=document.createElement('button');btn.className='secondary';btn.textContent='Repas préparé : déduire les ingrédients';btn.disabled=!!m.missing.length;btn.onclick=()=>{if(!confirm(`Confirmer la préparation pour ${people} personne(s) et déduire les ingrédients du stock ?`))return;const combined={};for(const r of [m.e,m.p])for(const [k,v] of Object.entries(r.ing))combined[k]=(combined[k]||0)+v*people*(['oeufs','steaks hachés'].includes(k)?catalog[k].grams:1);for(const [k,g] of Object.entries(combined))if((state.stock[k]||0)>0)state.stock[k]=Math.max(0,(state.stock[k]||0)-g);save();suggest();alert('Quantités connues déduites. Les ingrédients de quantité inconnue restent à vérifier et à mettre à jour manuellement.')};div.append(btn);root.append(div)});
 }
