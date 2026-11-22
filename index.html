@@ -10,9 +10,9 @@
 .menu-photo .photo-credit{font-size:10px;color:#657369;display:block}
 @media(max-width:390px){.menu-photo img,.menu-photo .photo-status{height:115px;min-height:115px}}
 .recipe-picture{width:100%;height:180px;object-fit:cover;display:block;border-radius:12px;margin:8px 0}.menu-photo .recipe-picture{height:145px}  .recipe-photo-placeholder{display:flex;align-items:center;justify-content:center;background:#f3f4ee;color:#526454;min-height:100px;border-radius:10px;font-size:14px;text-align:center;padding:12px;} </style></head><body><div id="js-status" role="alert" style="background:#fff1dc;color:#743d00;padding:14px 18px;font:16px system-ui;border-bottom:2px solid #d9a342">⚠️ Cette prévisualisation ne permet peut-être pas d’exécuter JavaScript. Pour utiliser les boutons, ouvrez le fichier HTML dans Chrome, Firefox ou Safari, ou utilisez la page GitHub Pages publiée.</div><div class="wrap"><header><div><h1>🥕 Mon Frigo</h1><div class="muted">Cuisine familiale · sans abonnement ni IA</div></div><span class="pill">V1 locale</span></header><nav class="tabs" id="tabs"><button data-tab="menu" class="active">🍽️ Menus</button><button data-tab="stock">🧺 Inventaire</button><button data-tab="recipes">📖 Recettes</button><button data-tab="settings">⚙️ Réglages</button></nav>
-<section id="menu" class="page"><div class="card"><h2>Qu'est-ce qu'on mange ?</h2><div class="grid"><div><label>Nombre de personnes</label><input id="people" type="number" min="1" max="12" value="2"></div><div><label>Temps maximum</label><select id="minutes"><option value="15">15 minutes</option><option value="20">20 minutes</option><option value="25">25 minutes</option><option value="30">30 minutes</option><option value="45">45 minutes</option><option value="60" selected>1 heure</option></select></div></div><label>Priorité des recettes</label><select id="speedPriority"><option value="balanced" selected>Variété + recettes express</option><option value="express">Priorité aux menus de moins de 30 min</option><option value="discovery">Découverte de nouvelles saveurs</option></select><p class="muted small">Les recettes express restent proposées même si vous autorisez jusqu’à 1 heure. La durée concerne le menu complet.</p><label>Ingrédients</label><select id="preference"><option value="missing" selected>Toutes les recettes (achats signalés)</option><option value="available">Uniquement ce que j'ai</option></select><div class="warn" role="status"><strong>Filtre nutritionnel :</strong> plafonds par personne et par repas (entrée + plat) : potassium 1 500 mg, sel 2 g. Les menus dont un dépassement est connu sont exclus. Les menus sans valeurs nutritionnelles vérifiées restent proposés avec un avertissement, sans garantie de compatibilité médicale. Aucune question sur les repas précédents.</div><p><button id="suggest">Proposer 3 menus</button></p><div id="suggestions"></div><p><button id="refreshMenus" class="secondary hidden" type="button">🔄 Proposer 3 autres menus</button></p></div></section>
+<section id="menu" class="page"><div class="card"><h2>Qu'est-ce qu'on mange ?</h2><div class="grid"><div><label>Nombre de personnes</label><input id="people" type="number" min="1" max="12" value="2"></div><div><label>Temps maximum</label><select id="minutes"><option value="15">15 minutes</option><option value="20">20 minutes</option><option value="25">25 minutes</option><option value="30">30 minutes</option><option value="45">45 minutes</option><option value="60" selected>1 heure</option></select></div></div><label>Priorité des recettes</label><select id="speedPriority"><option value="balanced" selected>Variété + recettes express</option><option value="express">Priorité aux menus de moins de 30 min</option><option value="discovery">Découverte de nouvelles saveurs</option></select><p class="muted small">Les recettes express restent proposées même si vous autorisez jusqu’à 1 heure. La durée concerne le menu complet.</p><label>Ingrédients</label><select id="preference"><option value="missing" selected>Toutes les recettes (achats signalés)</option><option value="available">Uniquement ce que j'ai</option></select><p><button id="suggest">Proposer 3 menus</button></p><div id="suggestions"></div><p><button id="refreshMenus" class="secondary hidden" type="button">🔄 Proposer 3 autres menus</button></p></div></section>
 <section id="stock" class="page hidden"><div class="card"><h2>Modifier mon inventaire</h2><div class="warn small">Tous les produits identifiés sont préchargés, y compris ceux dont la quantité est inconnue. Modifiez directement les quantités dans le tableau ci-dessous ou supprimez les lignes. Les quantités inconnues ne sont jamais considérées comme disponibles en quantité illimitée.</div><p class="muted">Écrivez par exemple « J'ajoute 4 carottes », « J'ai utilisé 2 endives », « Il me reste 3 oranges », « Je n'ai plus de riz ». Vous pouvez citer plusieurs aliments dans une même phrase. Sans quantité précisée, l’aliment sera ajouté avec « quantité à compléter ». Le tableau se met à jour immédiatement.</p><textarea id="command" placeholder="J'ai acheté 4 carottes"></textarea><p class="muted small">Pour les conserves, indiquez le nombre d’emballages, par exemple « J’ajoute 2 boîtes de maïs » ou « Je n’ai plus de pesto ».</p><p><button id="parse">Mettre à jour mon inventaire</button></p><div id="parsed"></div><hr><h2>Ajouter manuellement</h2><div class="grid"><div><label>Aliment</label><input id="food" list="foodlist" placeholder="Ex. carottes"><datalist id="foodlist"></datalist></div><div><label>Quantité</label><input id="amount" type="number" min="0.01" step="any" value="1"></div><div><label>Unité</label><select id="unit"><option value="pièce">Pièce(s)</option><option value="g">Grammes</option><option value="kg">Kilogrammes</option><option value="portion">Portion(s)</option></select></div><div><label>Lieu</label><select id="location"><option value="frigo">Réfrigérateur</option><option value="congelateur">Congélateur</option><option value="placard">Placard</option></select></div></div><p><button id="add">Ajouter au stock</button></p></div><div class="card"><h2>Mes aliments</h2><p class="muted small">Saisissez une quantité et cliquez sur « Enregistrer ». Le bouton « Supprimer » retire le produit de la liste. Les valeurs inconnues sont à compléter.</p><div id="stocklist"></div></div></section>
-<section id="recipes" class="page hidden"><div class="card"><h2>Bibliothèque de recettes</h2><p class="muted">Bibliothèque enrichie : plats régionaux et cuisines du monde, recettes express et préparations traditionnelles. Certaines sont des adaptations rapides et non des versions historiques authentiques. Les fiches n’ont pas toutes été vérifiées auprès d’une source culinaire. Les méthodes alternatives ne sont proposées que pour des recettes identifiées. Valeurs nutritionnelles non vérifiées : les seuils médicaux ne peuvent pas être garantis.</p><div class="grid"><div><label for="recipeSearch">Rechercher une recette</label><input id="recipeSearch" placeholder="Ex. basquaise, curry, Normandie"></div><div><label for="recipeDuration">Durée</label><select id="recipeDuration"><option value="60">Jusqu’à 60 min</option><option value="29">Express : moins de 30 min</option><option value="45">Jusqu’à 45 min</option></select></div></div><label for="recipeType">Type</label><select id="recipeType"><option value="all">Entrées et plats</option><option value="entrée">Entrées</option><option value="plat">Plats</option></select><p id="recipeCount" class="muted small"></p><div id="recipelist"></div></div></section>
+<section id="recipes" class="page hidden"><div class="card"><h2>Bibliothèque de recettes</h2><p class="muted">Bibliothèque enrichie (dont recettes maison non sourcées, à vérifier) : plats régionaux et cuisines du monde, recettes express et préparations traditionnelles. Certaines sont des adaptations rapides et non des versions historiques authentiques. Les fiches n’ont pas toutes été vérifiées auprès d’une source culinaire. Les méthodes alternatives ne sont proposées que pour des recettes identifiées. Valeurs nutritionnelles non vérifiées : les seuils médicaux ne peuvent pas être garantis.</p><div class="grid"><div><label for="recipeSearch">Rechercher une recette</label><input id="recipeSearch" placeholder="Ex. basquaise, curry, Normandie"></div><div><label for="recipeDuration">Durée</label><select id="recipeDuration"><option value="60">Jusqu’à 60 min</option><option value="29">Express : moins de 30 min</option><option value="45">Jusqu’à 45 min</option></select></div></div><label for="recipeType">Type</label><select id="recipeType"><option value="all">Entrées et plats</option><option value="entrée">Entrées</option><option value="plat">Plats</option></select><div class="card" style="background:#f3f8f3"><h2>🔄 Adapter une recette à mon inventaire</h2><p class="muted small">Choisissez une recette du catalogue. L’application remplace uniquement certains légumes ou féculents manquants par des ingrédients disponibles. Les protéines ne sont pas remplacées automatiquement. Les quantités inconnues doivent être confirmées. L’adaptation est une proposition culinaire, pas la recette d’origine ni une validation nutritionnelle.</p><label for="adaptRecipe">Recette de départ</label><select id="adaptRecipe"></select><p><button id="adaptButton" type="button">Adapter à mon stock</button></p><div id="adaptResult" aria-live="polite"></div></div><p id="recipeCount" class="muted small"></p><div id="recipelist"></div></div></section>
 <section id="settings" class="page hidden"><div class="card"><h2>Paramètres</h2><label>Nombre habituel de personnes</label><input id="defaultPeople" type="number" min="1" max="12" value="2"><p><button id="saveSettings">Enregistrer</button></p><div class="warn small"><strong>Restrictions médicales :</strong> plafonds par personne et par repas complet : potassium 1 500 mg, sel 2 g (≈ 800 mg sodium). Aucun suivi des repas précédents. Les recettes dont les valeurs nutritionnelles sont inconnues restent proposées avec un avertissement ; elles ne sont pas médicalement validées. Les exclusions chocolat et amandes sont appliquées. Ne pas utiliser cette application seule pour vérifier une prescription alimentaire.</div><h2 style="margin-top:24px">Sauvegarde</h2><p class="muted">Les données sont enregistrées sur cet appareil. Exportez régulièrement un fichier pour éviter leur perte. L'import remplace l'inventaire et les réglages locaux.</p><div class="actions"><button id="export" class="secondary">Exporter mes données</button><button id="importBtn" class="secondary">Importer une sauvegarde</button></div><input id="importFile" type="file" accept="application/json,.json" class="hidden"><p><button id="reset" class="ghost">Vider tout l'inventaire</button></p></div></section><div class="footer muted">Mon Frigo V1 · Fonctionnement local, sans compte ni requêtes IA. Les données ne se synchronisent pas automatiquement entre appareils.</div></div>
 <script>
 'use strict';
@@ -268,20 +268,29 @@ function renderStock(){
 }
 // Une quantité inconnue signifie « présent, quantité à vérifier », pas « absent ».
 const PACKAGE_TO_CATALOG={'haricots verts (bocaux)':'haricots verts','petits pois (boîtes)':'petits pois'};
+// Préindexer les ingrédients inconnus UNE FOIS par génération de menus.
+// Ancien comportement : une recherche floue complète pour chaque ingrédient de chaque paire
+// entrée/plat, ce qui bloquait le thread principal de Chromium.
+let unknownPresentIndex=new Set();
+let packagePresentIndex=new Set();
+function rebuildAvailabilityIndex(){
+ const normalize=name=>String(name).toLocaleLowerCase('fr').normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/\s+/g,' ').trim();
+ unknownPresentIndex=new Set();
+ for(const [name,value] of Object.entries(state.unknown||{})){
+   if(value===false)continue;
+   const canonical=UNKNOWN_TO_CATALOG[name]||lookup(name)||name;
+   unknownPresentIndex.add(normalize(canonical));
+ }
+ packagePresentIndex=new Set();
+ for(const [name,count] of Object.entries(state.packages||{})){
+   if(Number(count)>0&&PACKAGE_TO_CATALOG[name])packagePresentIndex.add(normalize(PACKAGE_TO_CATALOG[name]));
+ }
+}
 function availability(key,needed){
  const known=Number(state.stock[key])||0;
  if(known>=needed-0.01)return {status:'known',available:known};
- // Une présence déclarée sans quantité reste éligible au filtre « uniquement ce que j'ai ».
- // Même si une quantité partielle est connue, ne pas assimiler le complément inconnu à une absence.
- const normalizedName=name=>String(name).toLocaleLowerCase('fr').normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/\s+/g,' ').trim();
- const unknownEntries=Object.entries(state.unknown||{}).filter(([name,value])=>{
-   if(value===false)return false; // null signifie « présent, quantité non précisée » dans l'inventaire initial
-   const canonical=UNKNOWN_TO_CATALOG[name]||lookup(name)||name;
-   return normalizedName(canonical)===normalizedName(key);
- });
- if(unknownEntries.length)return {status:'uncertain',available:known};
- const packages=Object.entries(state.packages||{}).some(([name,count])=>PACKAGE_TO_CATALOG[name]===key&&Number(count)>0);
- if(packages)return {status:'uncertain',available:known};
+ const normalized=String(key).toLocaleLowerCase('fr').normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/\s+/g,' ').trim();
+ if(unknownPresentIndex.has(normalized)||packagePresentIndex.has(normalized))return {status:'uncertain',available:known};
  return {status:'missing',available:known};
 }
 // Petits ingrédients facultatifs : uniquement condiments et garnitures.
@@ -295,7 +304,7 @@ function splitMinorMissing(missing){
  return {essential:missing.filter(x=>!isOptionalIngredient(x.key)),minor:missing.filter(x=>isOptionalIngredient(x.key))};
 }
 function deficit(recipe,people){let missing=[],uncertain=[];for(let [key,per] of Object.entries(recipe.ing)){
- let needed=per*people*(['oeufs','steaks hachés'].includes(key)?catalog[key].grams:1),a=availability(key,needed);
+ let needed=per*people*(key==='oeufs'?(catalog[key]?.grams||55):1),a=availability(key,needed);
  if(a.status==='missing')missing.push({key,need:needed-a.available});
  if(a.status==='uncertain')uncertain.push({key,need:needed-a.available});
 }return {missing,uncertain}}
@@ -360,7 +369,20 @@ function cookingGuidance(r){
  }else html+='<p class="muted small"><strong>Ninja Dual :</strong> pas de conversion automatique proposée : ce plat repose sur une sauce, une cuisson humide, une pâte ou un montage qui ne se remplace pas simplement par AIR FRY.</p>';
  return html;
 }
-function menuDetails(m,people){return [m.e,m.p].map(r=>`<h4>${escapeHtml(r.type==='entrée'?'Entrée — ':'Plat — ')}${escapeHtml(r.name)}${r.region?' — '+escapeHtml(r.region):''}</h4><p><strong>Ingrédients pour ${people} personne(s) :</strong></p><ul>${Object.entries(r.ing).map(([k,v])=>`<li>${escapeHtml(ingredientText(k,v,people))}</li>`).join('')}</ul><p><strong>Étapes :</strong></p><ol>${r.steps.map(s=>`<li>${escapeHtml(s)}</li>`).join('')}</ol>${cookingGuidance(r)}${r.sourceUrl?'<p class="muted small">Source : <a target="_blank" rel="noopener noreferrer" href="'+escapeHtml(r.sourceUrl)+'">'+escapeHtml(r.sourcePublisher)+'</a>'+(Number.isFinite(r.rating)?' · ⭐ '+r.rating.toFixed(1)+'/5 (note source)':'')+'. '+escapeHtml(r.sourceNote)+'</p>':'<p class="warn small">Source culinaire non vérifiée.</p>'}`).join('')+'<div class="warn small">⚠️ Valeurs nutritionnelles non vérifiées si elles ne sont pas affichées comme calculées. Les temps et températures de cuisson sont indicatifs.</div>';}
+// Estimation de la durée du repas : démarrer le plat, puis préparer l'entrée
+// pendant sa cuisson. Faute de durées de préparation/cuisson séparées dans
+// le catalogue, réserver jusqu'à 10 min au lancement du plat avant de passer
+// à l'entrée. Si le plat est plus rapide, les tâches restent séquentielles.
+function menuTotalMinutes(entree,plat){
+ const e=Math.max(0,Number(entree.min)||0),p=Math.max(0,Number(plat.min)||0);
+ const launch=Math.min(10,p);
+ return Math.ceil(Math.max(p,launch+e));
+}
+function menuTimeExplanation(m){
+ const launch=Math.min(10,Number(m.p.min)||0);
+ return `<p class="muted small"><strong>Durée totale estimée : ${m.time} min</strong> (entrée : ${m.e.min} min ; plat : ${m.p.min} min). Commencez par le plat (~${launch} min de mise en route), puis préparez l’entrée pendant que le plat poursuit sa cuisson. Cette estimation suppose que le plat permet cette préparation en parallèle ; si sa cuisson demande une surveillance constante, prévoyez davantage de temps.</p>`;
+}
+function menuDetails(m,people){return menuTimeExplanation(m)+[m.e,m.p].map(r=>`<h4>${escapeHtml(r.type==='entrée'?'Entrée — ':'Plat — ')}${escapeHtml(r.name)}${r.region?' — '+escapeHtml(r.region):''}</h4>${r.adaptationSwaps?.length?'<p class="warn small"><strong>Adaptation au stock :</strong> '+escapeHtml(r.adaptationSwaps.map(x=>x.from+' → '+x.to).join(' ; '))+'. Les étapes ci-dessous sont celles de la recette initiale : ajustez les cuissons, notamment pour les féculents, et vérifiez la cuisson à cœur. Temps de cuisson à ajuster.</p>':''}<p><strong>Ingrédients pour ${people} personne(s) :</strong></p><ul>${Object.entries(r.ing).map(([k,v])=>`<li>${escapeHtml(ingredientText(k,v,people))}</li>`).join('')}</ul><p><strong>Étapes :</strong></p><ol>${r.steps.map(s=>`<li>${escapeHtml(s)}</li>`).join('')}</ol>${cookingGuidance(r)}${r.sourceUrl?'<p class="muted small">Source : <a target="_blank" rel="noopener noreferrer" href="'+escapeHtml(r.sourceUrl)+'">'+escapeHtml(r.sourcePublisher)+'</a>'+(Number.isFinite(r.rating)?' · ⭐ '+r.rating.toFixed(1)+'/5 (note source)':'')+'. '+escapeHtml(r.sourceNote)+'</p>':'<p class="warn small">Source culinaire non vérifiée.</p>'}`).join('');}
 
 // Photographies libres de Wikimedia Commons : recherche par nom du plat, sans clé ni compte.
 // Une photo n'est affichée que si elle correspond suffisamment au nom de la recette.
@@ -500,6 +522,54 @@ for(const r of NINJA_PROTEINS_AND_750G){
  if(!recipes.some(x=>x.id===r.id))recipes.push(r);
 }
 
+// Complément de recettes maison utilisant les produits réellement recensés.
+// Ces fiches ne sont PAS présentées comme des recettes publiées ou notées.
+const STOCK_BASED_RECIPES=[
+{"id": "stock26_e1", "type": "entrée", "name": "Carottes râpées nature", "min": 10, "ing": {"carottes": 80}, "steps": ["Laver, éplucher et râper les carottes.", "Servir fraîches."]},
+{"id": "stock26_e2", "type": "entrée", "name": "Endives croquantes à l’orange", "min": 10, "ing": {"endives": 85, "oranges": 55}, "steps": ["Émincer les endives.", "Ajouter les quartiers d’orange pelés à vif."]},
+{"id": "stock26_e3", "type": "entrée", "name": "Salade de poivrons crus et pommes", "min": 12, "ing": {"poivrons": 85, "pommes": 60}, "steps": ["Tailler les poivrons en lanières fines.", "Couper la pomme en dés et mélanger."]},
+{"id": "stock26_e4", "type": "entrée", "name": "Salade de courgette crue et citron", "min": 12, "ing": {"courgettes": 95, "citron": 8}, "steps": ["Râper la courgette crue et lavée.", "Arroser d’un peu de citron."]},
+{"id": "stock26_e5", "type": "entrée", "name": "Endives et carottes râpées", "min": 12, "ing": {"endives": 70, "carottes": 60}, "steps": ["Émincer les endives et râper les carottes.", "Mélanger."]},
+{"id": "stock26_e6", "type": "entrée", "name": "Carottes et pommes râpées", "min": 12, "ing": {"carottes": 65, "pommes": 55}, "steps": ["Râper la carotte et la pomme.", "Mélanger et servir rapidement."]},
+{"id": "stock26_e7", "type": "entrée", "name": "Salade de poivrons et oranges", "min": 12, "ing": {"poivrons": 80, "oranges": 55}, "steps": ["Émincer finement les poivrons crus.", "Ajouter les quartiers d’orange."]},
+{"id": "stock26_e8", "type": "entrée", "name": "Endives et pommes croquantes", "min": 10, "ing": {"endives": 85, "pommes": 50}, "steps": ["Émincer les endives.", "Couper les pommes en petits dés et mélanger."]},
+{"id": "stock26_e9", "type": "entrée", "name": "Carottes râpées à l’orange", "min": 12, "ing": {"carottes": 75, "oranges": 45}, "steps": ["Râper les carottes.", "Ajouter quelques suprêmes d’orange et un peu de jus."]},
+{"id": "stock26_e10", "type": "entrée", "name": "Salade de courgette et poivron crus", "min": 12, "ing": {"courgettes": 80, "poivrons": 75}, "steps": ["Râper la courgette lavée.", "Émincer finement le poivron et mélanger."]},
+{"id": "stock26_e11", "type": "entrée", "name": "Salade d’endives et poivrons", "min": 12, "ing": {"endives": 75, "poivrons": 75}, "steps": ["Laver et émincer les endives.", "Couper le poivron en fines lanières."]},
+{"id": "stock26_e12", "type": "entrée", "name": "Carottes râpées et citron", "min": 10, "ing": {"carottes": 75, "citron": 8}, "steps": ["Râper les carottes.", "Arroser de jus de citron."]},
+{"id": "stock26_e13", "type": "entrée", "name": "Salade verte et pomme", "min": 10, "ing": {"salade": 70, "pommes": 50}, "steps": ["Laver et essorer la salade.", "Ajouter des dés de pomme."]},
+{"id": "stock26_e14", "type": "entrée", "name": "Salade d’endives et orange au citron", "min": 12, "ing": {"endives": 80, "oranges": 50, "citron": 5}, "steps": ["Émincer les endives.", "Ajouter les morceaux d’orange et le jus de citron."]},
+{"id": "stock26_p1", "type": "plat", "name": "Riz sauté aux œufs, courgettes et oignons", "min": 25, "ing": {"riz": 65, "oeufs": 1, "courgettes": 130, "oignons": 35}, "steps": ["Cuire le riz dans l’eau puis l’égoutter.", "Faire revenir oignon et courgette émincés dans une poêle antiadhésive avec un fond d’eau.", "Ajouter le riz, puis l’œuf battu; remuer jusqu’à cuisson complète."]},
+{"id": "stock26_p2", "type": "plat", "name": "Omelette aux poivrons et pommes de terre", "min": 30, "ing": {"oeufs": 2, "poivrons": 110, "pommes de terre": 140}, "steps": ["Couper les pommes de terre en petits dés et les cuire à couvert dans un peu d’eau.", "Faire revenir les poivrons émincés.", "Ajouter les œufs battus et cuire à cœur."]},
+{"id": "stock26_p3", "type": "plat", "name": "Steak haché, riz et courgettes poêlées", "min": 30, "ing": {"steaks hachés": 125, "riz": 60, "courgettes": 140}, "steps": ["Cuire le riz selon le paquet.", "Faire revenir les courgettes en demi-rondelles.", "Cuire le steak haché à cœur, puis servir avec le riz."]},
+{"id": "stock26_p4", "type": "plat", "name": "Steak haché, pommes de terre et carottes vapeur", "min": 30, "ing": {"steaks hachés": 125, "pommes de terre": 140, "carottes": 90}, "steps": ["Couper pommes de terre et carottes en petits morceaux et cuire à la vapeur.", "Poêler le steak haché jusqu’à cuisson complète.", "Servir ensemble."]},
+{"id": "stock26_p5", "type": "plat", "name": "Saumon poêlé, riz et poivrons", "min": 30, "ing": {"saumon": 130, "riz": 60, "poivrons": 120}, "steps": ["Cuire le riz.", "Faire fondre les poivrons émincés à couvert avec un fond d’eau.", "Cuire le saumon à la poêle jusqu’à ce que la chair soit opaque et se détache."]},
+{"id": "stock26_p6", "type": "plat", "name": "Saumon vapeur, pommes de terre et courgettes", "min": 30, "ing": {"saumon": 130, "pommes de terre": 140, "courgettes": 130}, "steps": ["Couper les légumes en petits morceaux.", "Les cuire à la vapeur, puis ajouter le saumon dans le panier adapté.", "Vérifier la cuisson du poisson avant de servir."]},
+{"id": "stock26_p7", "type": "plat", "name": "Œufs brouillés, riz et petits pois", "min": 25, "ing": {"oeufs": 2, "riz": 60, "petits pois": 95}, "steps": ["Cuire le riz.", "Réchauffer les petits pois égouttés.", "Brouiller doucement les œufs dans une poêle antiadhésive et servir avec le riz."]},
+{"id": "stock26_p8", "type": "plat", "name": "Steak haché aux oignons, riz et poivrons", "min": 30, "ing": {"steaks hachés": 125, "riz": 60, "poivrons": 105, "oignons": 35}, "steps": ["Cuire le riz.", "Faire fondre l’oignon et le poivron émincés à couvert.", "Cuire le steak haché à cœur et servir."]},
+{"id": "stock26_p9", "type": "plat", "name": "Saumon en papillote et riz aux courgettes", "min": 30, "ing": {"saumon": 130, "riz": 60, "courgettes": 120}, "steps": ["Préchauffer le four à 190 °C.", "Placer le saumon en papillote et cuire environ 15 à 20 minutes selon l’épaisseur.", "Cuire le riz et les courgettes émincées pendant ce temps."]},
+{"id": "stock26_p10", "type": "plat", "name": "Poêlée de pommes de terre, œufs et haricots verts", "min": 30, "ing": {"oeufs": 2, "pommes de terre": 150, "haricots verts": 100}, "steps": ["Cuire les pommes de terre en dés dans une poêle couverte avec un peu d’eau.", "Ajouter les haricots verts égouttés.", "Cuire les œufs séparément jusqu’à la cuisson désirée."]},
+{"id": "stock26_p11", "type": "plat", "name": "Riz aux steaks hachés émiettés et carottes", "min": 30, "ing": {"steaks hachés": 125, "riz": 65, "carottes": 95}, "steps": ["Cuire le riz.", "Râper les carottes et les cuire à couvert avec un peu d’eau.", "Émietter et cuire entièrement le steak haché puis mélanger."]},
+{"id": "stock26_p12", "type": "plat", "name": "Omelette aux courgettes et riz", "min": 25, "ing": {"oeufs": 2, "courgettes": 125, "riz": 60}, "steps": ["Cuire le riz.", "Faire revenir les courgettes en petits dés.", "Verser les œufs battus et cuire complètement, puis servir avec le riz."]},
+{"id": "stock26_p13", "type": "plat", "name": "Gratin de pommes de terre, courgettes et œufs", "min": 50, "ing": {"pommes de terre": 160, "courgettes": 130, "oeufs": 2}, "steps": ["Préchauffer le four à 190 °C.", "Précuire les pommes de terre en tranches fines.", "Disposer avec les courgettes, verser les œufs battus et enfourner jusqu’à prise complète, environ 25 minutes."]},
+{"id": "stock26_p14", "type": "plat", "name": "Poivrons farcis au riz et bœuf haché", "min": 55, "ing": {"poivrons": 170, "riz": 60, "steaks hachés": 125, "oignons": 30}, "steps": ["Préchauffer le four à 190 °C et cuire le riz.", "Émietter et faire revenir le bœuf avec l’oignon.", "Farcir les poivrons évidés de riz et de bœuf, puis cuire 30 à 35 minutes au four."]},
+{"id": "stock26_p15", "type": "plat", "name": "Frittata au four, pommes de terre et poivrons", "min": 45, "ing": {"oeufs": 2, "pommes de terre": 140, "poivrons": 110}, "steps": ["Préchauffer le four à 180 °C.", "Précuire les pommes de terre en dés et émincer les poivrons.", "Verser les œufs battus et les légumes dans un plat, cuire environ 20 à 25 minutes jusqu’à prise complète."]},
+{"id": "stock26_p16", "type": "plat", "name": "Saumon rôti sur lit de poivrons et pommes de terre", "min": 45, "ing": {"saumon": 130, "poivrons": 110, "pommes de terre": 150}, "steps": ["Préchauffer le four à 200 °C.", "Enfourner les pommes de terre en petits dés et les poivrons émincés pendant 20 minutes.", "Ajouter le saumon et prolonger 12 à 18 minutes selon l’épaisseur."]},
+{"id": "stock26_p17", "type": "plat", "name": "Hachis de bœuf et purée de pommes de terre", "min": 55, "ing": {"steaks hachés": 125, "pommes de terre": 180, "oignons": 40}, "steps": ["Cuire les pommes de terre et les écraser avec un peu d’eau de cuisson.", "Faire revenir le bœuf émietté et l’oignon jusqu’à cuisson complète.", "Étaler dans un plat, couvrir de purée et gratiner 15 minutes au four."]},
+{"id": "stock26_p18", "type": "plat", "name": "Riz au four, courgettes et saumon", "min": 50, "ing": {"saumon": 130, "riz": 65, "courgettes": 140}, "steps": ["Cuire le riz et préchauffer le four à 190 °C.", "Mélanger le riz avec les courgettes préalablement poêlées.", "Ajouter le saumon en morceaux, couvrir et cuire au four environ 15 à 20 minutes."]}
+];
+for(const r of STOCK_BASED_RECIPES){
+ r.recipeKind='Recette maison — non sourcée';r.appliance='gazinière ou four';r.safetyNotes=[];r.sourceUrl=null;r.sourcePublisher=null;
+ r.sourceNote='Proposition culinaire non vérifiée auprès d’une source publiée.';
+ for(const k of Object.keys(r.ing))if(!catalog[k])catalog[k]={unit:'g',grams:1,aliases:[k]};
+ if(!recipes.some(x=>x.name.toLocaleLowerCase('fr')===r.name.toLocaleLowerCase('fr')))recipes.push(r);
+}
+
+// Complément pour atteindre les objectifs de plats disponibles avec le stock initial et 1 kg de riz.
+recipes.push(...[{"id": "newfast1", "type": "plat", "name": "Riz aux œufs brouillés, poivrons et carottes", "min": 25, "ing": {"riz": 65, "oeufs": 1, "poivrons": 100, "carottes": 60, "oignons": 20}, "steps": ["Cuire le riz dans une casserole selon le paquet.", "Émincer les poivrons, les carottes et les oignons, puis les faire revenir à couvert 10 minutes avec un fond d’eau.", "Battre les œufs, les verser dans la poêle et les cuire complètement en remuant.", "Incorporer le riz chaud et servir."], "appliance": "gazinière", "source": "Recette maison non sourcée", "nutritionVerified": false}, {"id": "newfast2", "type": "plat", "name": "Omelette aux poivrons, riz et oignons", "min": 25, "ing": {"oeufs": 1.5, "poivrons": 110, "riz": 55, "oignons": 25}, "steps": ["Cuire le riz selon le paquet.", "Faire revenir les poivrons et oignons émincés à couvert pendant 10 minutes.", "Battre les œufs, verser sur les légumes et cuire jusqu’à prise complète.", "Servir avec le riz."], "appliance": "gazinière", "source": "Recette maison non sourcée", "nutritionVerified": false}, {"id": "newfast3", "type": "plat", "name": "Steak haché, écrasé de pommes de terre et carottes", "min": 30, "ing": {"steaks hachés": 1, "pommes de terre": 160, "carottes": 110}, "steps": ["Couper pommes de terre et carottes en petits dés.", "Cuire les légumes dans l’eau frémissante environ 15 minutes, jusqu’à tendreté.", "Cuire le steak haché complètement à la poêle.", "Écraser les légumes avec un peu d’eau de cuisson et servir."], "appliance": "gazinière", "source": "Recette maison non sourcée", "nutritionVerified": false}, {"id": "newfast4", "type": "plat", "name": "Saumon, riz et fondue de poivrons", "min": 30, "ing": {"saumon": 130, "riz": 60, "poivrons": 135, "oignons": 25}, "steps": ["Cuire le riz selon le paquet.", "Émincer les poivrons et l’oignon puis cuire à couvert 12 minutes avec un fond d’eau.", "Cuire le saumon jusqu’à cuisson à cœur dans une poêle séparée.", "Servir le poisson avec le riz et les légumes."], "appliance": "gazinière", "source": "Recette maison non sourcée", "nutritionVerified": false}, {"id": "newslow1", "type": "plat", "name": "Poivrons farcis au riz et steak haché", "min": 50, "ing": {"poivrons": 170, "riz": 60, "steaks hachés": 1, "oignons": 30}, "steps": ["Préchauffer le four à 190 °C.", "Cuire le riz selon le paquet et faire revenir l’oignon avec le steak émietté jusqu’à cuisson complète.", "Mélanger riz et viande, garnir les poivrons épépinés.", "Enfourner 25 à 30 minutes, jusqu’à ce que les poivrons soient tendres."], "appliance": "four", "source": "Recette maison non sourcée", "nutritionVerified": false}, {"id": "newslow2", "type": "plat", "name": "Gratin de riz, courgettes et œufs", "min": 45, "ing": {"riz": 65, "courgettes": 170, "oeufs": 1, "oignons": 25}, "steps": ["Préchauffer le four à 190 °C et cuire le riz selon le paquet.", "Faire revenir courgettes et oignons émincés 10 minutes.", "Mélanger riz, légumes et œuf battu; verser dans un petit plat.", "Enfourner 20 minutes jusqu’à ce que l’œuf soit complètement pris."], "appliance": "four", "source": "Recette maison non sourcée", "nutritionVerified": false}, {"id": "newslow3", "type": "plat", "name": "Parmentier de steak haché aux courgettes", "min": 50, "ing": {"steaks hachés": 1, "pommes de terre": 180, "courgettes": 140, "oignons": 25}, "steps": ["Préchauffer le four à 200 °C.", "Cuire les pommes de terre coupées en dés environ 15 minutes puis les écraser.", "Faire revenir oignon et courgette, ajouter le steak émietté et cuire complètement.", "Disposer la viande et les légumes dans un plat, recouvrir de purée et gratiner 15 minutes."], "appliance": "four", "source": "Recette maison non sourcée", "nutritionVerified": false}, {"id": "newslow4", "type": "plat", "name": "Riz au four, saumon et courgettes", "min": 50, "ing": {"saumon": 140, "riz": 65, "courgettes": 150, "oignons": 25}, "steps": ["Préchauffer le four à 190 °C.", "Cuire le riz selon le paquet.", "Faire revenir les courgettes et l’oignon émincés 8 minutes.", "Mélanger riz et légumes dans un plat, poser le saumon dessus et enfourner environ 18 minutes jusqu’à cuisson à cœur."], "appliance": "four", "source": "Recette maison non sourcée", "nutritionVerified": false}]);
+
+for(const r of recipes.filter(r=>/^new(?:fast|slow)/.test(r.id))){r.safetyNotes=[];r.recipeKind='Recette maison — non sourcée';r.sourceUrl=null;r.sourcePublisher=null;r.sourceNote='Proposition culinaire non vérifiée auprès d’une source publiée.';}
+
 function photoFor(r){const k=photoKey(r);return k&&PHOTO_LIBRARY[k]||null;}
 function recipePicture(r){const src=photoFor(r);if(!src){const placeholder=document.createElement('div');placeholder.className='recipe-picture recipe-photo-placeholder';placeholder.textContent='🍽️ Illustration à venir';placeholder.setAttribute('aria-label','Illustration non encore disponible pour '+r.name);return placeholder;}const img=document.createElement('img');img.src=src;img.alt='Illustration IA du plat : '+r.name;img.loading='lazy';img.className='recipe-picture';return img;}
 function addMenuPhotos(container,items){
@@ -510,6 +580,7 @@ function addMenuPhotos(container,items){
 // Un plat réalisable ne doit pas disparaître uniquement faute d'entrée de crudités.
 // Afficher séparément les plats compatibles, sans prétendre qu'il s'agit d'un menu complet.
 function renderAvailableDishes(people,max){
+ rebuildAvailabilityIndex();
  const root=document.getElementById('suggestions');
  const options=recipes.filter(r=>r.type==='plat'&&r.min<=max).map(r=>{
    const d=deficit(r,people),parts=splitMinorMissing(d.missing);
@@ -543,20 +614,20 @@ function renderAvailableDishes(people,max){
    const summary=document.createElement('summary');summary.textContent='🍽️ '+item.r.name+' · '+item.r.min+' min';div.append(summary);
    const note=document.createElement('div');
    note.innerHTML=(item.minor.length?'<p>🧂 Facultatifs manquants : '+escapeHtml(item.minor.map(x=>x.key).join(', '))+'</p>':'')
-    +(item.uncertain.length?'<p>⚠️ Quantités à confirmer : '+escapeHtml(item.uncertain.map(x=>x.key).join(', '))+'</p>':'')
-    +'<p>⚠️ Potassium et sel non vérifiés.</p><p><strong>Ingrédients :</strong></p><ul>'
+    
+    +'<p><strong>Ingrédients :</strong></p><ul>'
     +Object.entries(item.r.ing).map(([k,v])=>'<li>'+escapeHtml(ingredientText(k,v,people))+'</li>').join('')
     +'</ul><p><strong>Préparation :</strong></p><ol>'+item.r.steps.map(x=>'<li>'+escapeHtml(x)+'</li>').join('')+'</ol>'+cookingGuidance(item.r);
    div.append(note);root.append(div);
  }
 }
 function renderOffers(people){const root=document.getElementById('suggestions');root.replaceChildren();document.getElementById('refreshMenus').classList.toggle('hidden',menuPool.length===0);if(!offered.length){if(document.getElementById('preference').value==='available'){renderAvailableDishes(people,Number(document.getElementById('minutes').value));return;}root.innerHTML='<div class="warn">Aucun menu supplémentaire disponible avec les critères sélectionnés.</div>';return;}
- offered.forEach((m,i)=>{const div=document.createElement('div');div.className='recipe';const notice=m.nutrition.status==='unknown'?'<div class="warn small">⚠️ Potassium et sel non vérifiés : compatibilité médicale inconnue.</div>':`<div class="ok small">Potassium : ${Math.round(m.nutrition.potassiumMg)} mg ; sel : ${m.nutrition.saltG.toFixed(2)} g par personne.</div>`;const uncertainNote=m.uncertain&&m.uncertain.length?`<div class="warn small">Quantité à vérifier avant de cuisiner : ${m.uncertain.map(x=>escapeHtml(x.key)).join(', ')}.</div>`:'';const minorNote=m.minorMissing&&m.minorMissing.length?`<div class="warn small">🧂 Petits ingrédients facultatifs absents : ${m.minorMissing.map(x=>escapeHtml(x.key)).join(', ')}. Recette proposée quand même : à omettre ou à acheter selon votre goût.</div>`:'';
+ offered.forEach((m,i)=>{const div=document.createElement('div');div.className='recipe';const notice='';const uncertainNote='';const adaptedNote=[m.e,m.p].flatMap(r=>r.adaptationSwaps||[]).length?'<div class="warn small">🔄 Recette adaptée automatiquement : '+escapeHtml([m.e,m.p].flatMap(r=>r.adaptationSwaps||[]).map(x=>x.from+' → '+x.to).join(' ; '))+'. Vérifiez les étapes et les temps de cuisson.</div>':'';const minorNote=m.minorMissing&&m.minorMissing.length?`<div class="warn small">🧂 Petits ingrédients facultatifs absents : ${m.minorMissing.map(x=>escapeHtml(x.key)).join(', ')}. Recette proposée quand même : à omettre ou à acheter selon votre goût.</div>`:'';
  const miss=m.missing.length?`<div class="warn small">Manque : ${m.missing.map(x=>escapeHtml(x.key+' ('+toDisplay(x.key,x.need)+')')).join(', ')}</div>`:(!m.minorMissing?.length?'<div class="ok small">Tous les ingrédients sont disponibles.</div>':'');
- div.innerHTML=`<h3>Menu ${i+1}</h3><button type="button" class="secondary detail" style="width:100%;text-align:left;white-space:normal">🥗 ${escapeHtml(m.e.name)}<br>🍽️ ${escapeHtml(m.p.name)}<br><small>${people} personne(s) · ${m.time<30?'⚡ EXPRESS · ':''}environ ${m.time} min (estimation) · Voir la recette complète ▼</small></button>${miss}${minorNote}${uncertainNote}${notice}<div class="details hidden"></div>`;
+ div.innerHTML=`<h3>Menu ${i+1}</h3><button type="button" class="secondary detail" style="width:100%;text-align:left;white-space:normal">🥗 ${escapeHtml(m.e.name)}<br>🍽️ ${escapeHtml(m.p.name)}<br><small>${people} personne(s) · ${m.time<30?'⚡ EXPRESS · ':''}environ ${m.time} min au total (entrée + plat, préparation en parallèle) · Voir la recette complète ▼</small></button>${miss}${minorNote}${uncertainNote}<div class="details hidden"></div>`;
   addMenuPhotos(div,[m.e,m.p]);
  div.querySelector('.detail').onclick=()=>{const d=div.querySelector('.details');const wasHidden=d.classList.contains('hidden');d.classList.toggle('hidden');if(wasHidden)d.innerHTML=menuDetails(m,people)};
- const btn=document.createElement('button');btn.className='secondary';btn.textContent='Repas préparé : déduire les ingrédients';btn.disabled=!!m.missing.length;btn.onclick=()=>{if(!confirm(`Confirmer la préparation pour ${people} personne(s) et déduire les ingrédients du stock ?`))return;const combined={};for(const r of [m.e,m.p])for(const [k,v] of Object.entries(r.ing))combined[k]=(combined[k]||0)+v*people*(['oeufs','steaks hachés'].includes(k)?catalog[k].grams:1);for(const [k,g] of Object.entries(combined))if((state.stock[k]||0)>0)state.stock[k]=Math.max(0,(state.stock[k]||0)-g);btn.disabled=true;save();suggest();alert('Quantités connues déduites. Les ingrédients de quantité inconnue restent à vérifier et à mettre à jour manuellement.')};div.append(btn);root.append(div)});
+ const btn=document.createElement('button');btn.className='secondary';btn.textContent='Repas préparé : déduire les ingrédients';btn.disabled=!!m.missing.length;btn.onclick=()=>{if(!confirm(`Confirmer la préparation pour ${people} personne(s) et déduire les ingrédients du stock ?`))return;const combined={};for(const r of [m.e,m.p])for(const [k,v] of Object.entries(r.ing))combined[k]=(combined[k]||0)+v*people*(['oeufs','steaks hachés'].includes(k)?(catalog[k]?.grams||1):1);for(const [k,g] of Object.entries(combined))if((state.stock[k]||0)>0)state.stock[k]=Math.max(0,(state.stock[k]||0)-g);btn.disabled=true;save();suggest();alert('Les quantités connues ont été déduites du stock.')};div.append(btn);root.append(div)});
 }
 function proteinFamily(r){
  if(r.family)return r.family;
@@ -570,22 +641,30 @@ let lastFamilies=new Set(),expandedMenus=false;
 function drawThree(){
  let candidates=menuPool.filter(m=>!shownMenus.has(m.e.id+'|'+m.p.id));
  if(!candidates.length){shownMenus.clear();candidates=menuPool.slice();}
- const chosen=[],usedFamilies=new Set(),usedPlats=new Set(),usedEntrees=new Set();
- // Choisir d'abord des familles de plats différentes, en privilégiant celles non affichées précédemment.
- for(const avoidPrevious of [true,false]){
-  for(const m of candidates){if(chosen.length>=3)break;const family=proteinFamily(m.p);
-   if(usedFamilies.has(family)||usedPlats.has(m.p.id)||usedEntrees.has(m.e.id))continue;
-   if(avoidPrevious&&lastFamilies.has(family))continue;
-   chosen.push(m);usedFamilies.add(family);usedPlats.add(m.p.id);usedEntrees.add(m.e.id);
-  }
+ const chosen=[],selected=new Set(),usedFamilies=new Set(),usedPlats=new Set(),usedEntrees=new Set();
+ function add(m){
+  const id=m.e.id+'|'+m.p.id;
+  if(selected.has(id))return;
+  chosen.push(m);selected.add(id);usedFamilies.add(proteinFamily(m.p));usedPlats.add(m.p.id);usedEntrees.add(m.e.id);
  }
- // Ne jamais afficher plusieurs omelettes comme si elles étaient des plats différents.
+ // Priorité 1 : familles de protéines, plats et entrées différents.
+ // Priorité 2 : plats différents, même si la famille ou l'entrée se répète.
+ // Priorité 3 : autres combinaisons entrée + plat, sans doublon exact.
+ for(const pass of [1,2,3]){
+  for(const m of candidates){
+   if(chosen.length>=3)break;
+   if(pass===1&&(usedFamilies.has(proteinFamily(m.p))||usedPlats.has(m.p.id)||usedEntrees.has(m.e.id)))continue;
+   if(pass===2&&usedPlats.has(m.p.id))continue;
+   add(m);
+  }
+  if(chosen.length>=3)break;
+ }
  offered=chosen;lastFamilies=new Set(chosen.map(m=>proteinFamily(m.p)));
  for(const m of offered)shownMenus.add(m.e.id+'|'+m.p.id);
  renderOffers(Number(document.getElementById('people').value));
  const root=document.getElementById('suggestions');
  if(expandedMenus){const msg=document.createElement('div');msg.className='warn';msg.textContent='Certaines propositions nécessitent des ingrédients à acheter, indiqués sous chaque menu. Aucun ingrédient ne sera déduit avant confirmation.';root.prepend(msg);}
- if(offered.length<3){const msg=document.createElement('div');msg.className='warn';msg.textContent='Seulement '+offered.length+' famille(s) de plats possible(s) avec ces critères.';root.prepend(msg);}
+ if(offered.length<3){const msg=document.createElement('div');msg.className='warn';msg.textContent='Seulement '+offered.length+' combinaison(s) entrée + plat disponible(s) avec ces critères.';root.prepend(msg);}
 }
 function menuRank(m){
  const mode=document.getElementById('speedPriority').value;
@@ -597,12 +676,28 @@ function menuRank(m){
  return express*7+authenticity*1.2-missingPenalty;
 }
 function suggest(){
+ rebuildAvailabilityIndex();
  const people=Math.floor(Number(document.getElementById('people').value)),max=Number(document.getElementById('minutes').value);
  if(!(people>=1&&people<=12)){alert('Choisissez de 1 à 12 personnes.');return;}
- const allow=document.getElementById('preference').value==='missing',entries=recipes.filter(r=>r.type==='entrée'),plats=recipes.filter(r=>r.type==='plat');
+ const allow=document.getElementById('preference').value==='missing';
+ // En mode stock uniquement, adapter automatiquement les recettes du catalogue
+ // AVANT de constituer les menus. Ne pas modifier les fiches d'origine.
+ const candidateRecipes=recipes.map(original=>{
+   if(allow)return original;
+   const result=adaptRecipeToStock(original,people,true);
+   if(result.unavailable.length)return null;
+   if(!result.swaps.length&&!result.optional.length)return original;
+   return {...result.recipe,originalId:original.id,
+     name:original.name+(result.swaps.length?' (adaptée au stock)':''),
+     adaptationSwaps:result.swaps,adaptationOptional:result.optional,
+     adaptationUncertain:result.uncertain,
+     sourceNote:(original.sourceNote||'')+' Adaptation automatique non validée par la source.',
+     nutritionAdapted:result.swaps.length>0};
+ }).filter(Boolean);
+ const entries=candidateRecipes.filter(r=>r.type==='entrée'),plats=candidateRecipes.filter(r=>r.type==='plat');
  const possibilities=[];
  for(const e of entries)for(const p of plats){
-  const time=Math.max(e.min,p.min)+Math.min(10,e.min);if(time>max)continue;
+  const time=menuTotalMinutes(e,p);if(time>max)continue;
   const combined={ing:{}};for(const r of [e,p])for(const [k,v] of Object.entries(r.ing))combined.ing[k]=(combined.ing[k]||0)+v;
   const availabilityResult=deficit(combined,people),uncertain=availabilityResult.uncertain;
   const parts=splitMinorMissing(availabilityResult.missing);
@@ -610,11 +705,11 @@ function suggest(){
   const minorMissing=allow?[]:parts.minor;
   // En mode stock seul : maximum trois condiments/garnitures manquants.
   if(!allow&&(missing.length||minorMissing.length>3))continue;
-  const nutrition=nutritionForMenu(e,p);if(nutrition.status==='exceeded')continue;
+  const nutrition=(e.nutritionAdapted||p.nutritionAdapted)?{status:'unknown'}:nutritionForMenu(e,p);if(nutrition.status==='exceeded')continue;
   possibilities.push({e,p,time,missing,minorMissing,uncertain,nutrition,score:missing.reduce((sum,m)=>sum+m.need,0)+missing.length*150});
  }
  possibilities.sort((a,b)=>menuRank(b)-menuRank(a)||a.score-b.score||a.time-b.time);
- const signature=JSON.stringify({minorPolicy:'max3',people,max,allow,speed:document.getElementById('speedPriority').value,stock:state.stock,packages:state.packages,unknown:state.unknown});
+ const signature=JSON.stringify({adaptation:'automatic-v1',minorPolicy:'max3',people,max,allow,speed:document.getElementById('speedPriority').value,stock:state.stock,packages:state.packages,unknown:state.unknown});
  if(signature!==menuSignature){shownMenus.clear();lastFamilies.clear();menuSignature=signature;}
  menuPool=possibilities;
  // Respecter strictement le choix de l’utilisateur, même avec moins de trois familles.
@@ -625,7 +720,7 @@ function suggest(){
 function suggestWithMissing(people,max,entries,plats){
  const possibilities=[];
  for(const e of entries)for(const p of plats){
-  const time=Math.max(e.min,p.min)+Math.min(10,e.min);if(time>max)continue;
+  const time=menuTotalMinutes(e,p);if(time>max)continue;
   const combined={ing:{}};for(const r of [e,p])for(const [k,v] of Object.entries(r.ing))combined.ing[k]=(combined.ing[k]||0)+v;
   const availabilityResult=deficit(combined,people),missing=availabilityResult.missing,uncertain=availabilityResult.uncertain,nutrition=nutritionForMenu(e,p);
   if(nutrition.status==='exceeded')continue;
@@ -647,7 +742,18 @@ function refreshDiverse(){
  menuPool.sort((a,b)=>familyPriority.indexOf(proteinFamily(a.p))-familyPriority.indexOf(proteinFamily(b.p))||menuRank(b)-menuRank(a)||a.score-b.score);
  drawThree();
 }
-document.getElementById('suggest').onclick=suggest;
+document.getElementById('suggest').onclick=()=>{
+ const root=document.getElementById('suggestions');
+ const button=document.getElementById('suggest');
+ root.innerHTML='<p role="status">Recherche de menus en cours…</p>';
+ button.disabled=true;
+ setTimeout(()=>{
+   try{suggest()}catch(error){
+     console.error('Mon Frigo — erreur de génération des menus',error);
+     root.innerHTML='<div class="warn" role="alert"><strong>Impossible de générer les menus.</strong> Vos ingrédients n’ont pas été modifiés. Détail technique : '+escapeHtml(String(error?.message||error))+'</div>';
+   }finally{button.disabled=false;}
+ },0);
+};
 document.getElementById('refreshMenus').onclick=refreshDiverse;
 document.getElementById('speedPriority').onchange=()=>{shownMenus.clear();lastFamilies.clear();suggest()};
 function renderRecipes(){
@@ -663,6 +769,73 @@ function renderRecipes(){
   div.append(content);root.append(div);
  }
 }
+// Adaptations locales et déterministes : aucune IA ni source extérieure.
+const ADAPT_GROUPS=[
+ ['riz','pâtes','semoule','pommes de terre'],
+ ['courgettes','carottes','poivrons','haricots verts','petits pois','chou-fleur','endives','oignons'],
+ ['salade','endives','carottes','poivrons','courgettes'],
+ ['pommes','oranges','poire']
+];
+function adaptRecipeToStock(recipe,people,alreadyIndexed=false){
+ if(!alreadyIndexed)rebuildAvailabilityIndex();
+ const adapted={...recipe,ing:{...recipe.ing},steps:[...(recipe.steps||[])]};
+ const swaps=[],unavailable=[],uncertain=[],optional=[];
+ // Réserver virtuellement les quantités déjà demandées par la recette.
+ const reserved={};
+ for(const [k,v] of Object.entries(adapted.ing)){
+   const need=v*people*(k==='oeufs'?(catalog[k]?.grams||55):1);
+   if(availability(k,need).status==='known')reserved[k]=(reserved[k]||0)+need;
+ }
+ for(const [key,per] of Object.entries(recipe.ing)){
+   const need=per*people*(key==='oeufs'?(catalog[key]?.grams||55):1);
+   const status=availability(key,need).status;
+   if(status==='known')continue;
+   if(status==='uncertain'){uncertain.push(key);continue;}
+   if(isOptionalIngredient(key)){optional.push(key);delete adapted.ing[key];continue;}
+   // Les remplacements automatiques sont limités aux familles végétales/féculents.
+   const group=ADAPT_GROUPS.find(g=>g.includes(key));
+   if(!group){unavailable.push(key);continue;}
+   let choice=null;
+   for(const alt of group){
+     if(alt===key)continue;
+     const amount=(adapted.ing[alt]||0)+per;
+     const gramsNeeded=amount*people*(alt==='oeufs'?(catalog[alt]?.grams||55):1);
+     if(availability(alt,gramsNeeded).status==='known' && (Number(state.stock[alt])||0)>=gramsNeeded){choice=alt;break;}
+   }
+   if(!choice){
+     // Quantité inconnue : autorisée mais explicitement signalée.
+     choice=group.find(alt=>alt!==key&&availability(alt,per*people).status==='uncertain')||null;
+   }
+   if(!choice){unavailable.push(key);continue;}
+   delete adapted.ing[key];adapted.ing[choice]=(adapted.ing[choice]||0)+per;
+   swaps.push({from:key,to:choice});
+   if(availability(choice,adapted.ing[choice]*people).status==='uncertain')uncertain.push(choice);
+ }
+ return {recipe:adapted,swaps,unavailable,uncertain:[...new Set(uncertain)],optional};
+}
+function renderAdaptation(){
+ const root=document.getElementById('adaptResult');root.replaceChildren();
+ const recipe=recipes.find(r=>r.id===document.getElementById('adaptRecipe').value);
+ if(!recipe){root.textContent='Choisissez une recette.';return;}
+ const people=Math.floor(Number(document.getElementById('people').value))||state.settings.people||2;
+ const result=adaptRecipeToStock(recipe,people);
+ const {recipe:adapted,swaps,unavailable,uncertain,optional}=result;
+ const title=document.createElement('h3');title.textContent=adapted.name+' — version adaptée';root.append(title);
+ const note=document.createElement('div');note.className=unavailable.length?'warn':'ok';
+ note.textContent=unavailable.length?'Adaptation partielle : ingrédients principaux encore manquants : '+unavailable.join(', '):'Adaptation proposée à partir des ingrédients présents dans votre inventaire.';root.append(note);
+ const section=document.createElement('div');section.className='recipe';
+ section.innerHTML='<p><strong>Remplacements :</strong> '+escapeHtml(swaps.length?swaps.map(x=>x.from+' → '+x.to).join(' ; '):'aucun nécessaire')+'</p>'
+ +(optional.length?'<p>Condiments non disponibles, omis : '+escapeHtml(optional.join(', '))+'</p>':'')
+ 
+ +'<p><strong>Ingrédients pour '+people+' personne(s) :</strong></p><ul>'+Object.entries(adapted.ing).map(([k,v])=>'<li>'+escapeHtml((k==='oeufs'||k==='steaks hachés')?(v*people+' '+k):((v*people)+' g de '+k))+'</li>').join('')+'</ul>'
+ +'<p><strong>Étapes de la recette de départ :</strong></p><ol>'+adapted.steps.map(x=>'<li>'+escapeHtml(String(x))+'</li>').join('')+'</ol>'
+ +(swaps.length?'<p class="warn">⚠️ Ces étapes sont celles de la recette initiale. Remplacez les ingrédients indiqués ci-dessus et adaptez la découpe, le temps de cuisson et l’eau de cuisson au nouvel ingrédient. Vérifiez la cuisson à cœur. La durée initiale de '+recipe.min+' min n’est plus garantie.</p>':'<p class="muted small">Durée indicative : '+recipe.min+' min.</p>')
+ +'<p class="warn">⚠️ Potassium et sel non vérifiés pour cette adaptation : ne pas considérer les seuils médicaux comme respectés.</p>';
+ root.append(section);
+}
+const adaptSelect=document.getElementById('adaptRecipe');
+for(const r of recipes){const opt=document.createElement('option');opt.value=r.id;opt.textContent=(r.type==='entrée'?'🥗 ':'🍲 ')+r.name;adaptSelect.append(opt);}
+document.getElementById('adaptButton').onclick=renderAdaptation;
 for(const id of ['recipeSearch','recipeDuration','recipeType'])document.getElementById(id).addEventListener('input',renderRecipes);
 for(let key of Object.keys(catalog)){let opt=document.createElement('option');opt.value=key;document.getElementById('foodlist').append(opt)}document.getElementById('defaultPeople').value=state.settings.people;document.getElementById('people').value=state.settings.people;document.getElementById('saveSettings').onclick=()=>{let p=Math.floor(Number(document.getElementById('defaultPeople').value));if(p<1||p>12)return alert('De 1 à 12 personnes.');state.settings.people=p;document.getElementById('people').value=p;save();alert('Préférence enregistrée.')};document.querySelectorAll('[data-tab]').forEach(b=>b.onclick=()=>{document.querySelectorAll('.page').forEach(p=>p.classList.add('hidden'));document.getElementById(b.dataset.tab).classList.remove('hidden');document.querySelectorAll('[data-tab]').forEach(x=>x.classList.toggle('active',x===b))});document.getElementById('export').onclick=()=>{let blob=new Blob([JSON.stringify({version:3,...state},null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='mon-frigo-sauvegarde.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),2000)};document.getElementById('importBtn').onclick=()=>document.getElementById('importFile').click();document.getElementById('importFile').onchange=async e=>{
  const file=e.target.files&&e.target.files[0];if(!file)return;
