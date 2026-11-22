@@ -271,11 +271,28 @@ const PACKAGE_TO_CATALOG={'haricots verts (bocaux)':'haricots verts','petits poi
 function availability(key,needed){
  const known=Number(state.stock[key])||0;
  if(known>=needed-0.01)return {status:'known',available:known};
- const unknownEntries=Object.entries(state.unknown||{}).filter(([name])=>name===key||UNKNOWN_TO_CATALOG[name]===key);
+ // Une présence déclarée sans quantité reste éligible au filtre « uniquement ce que j'ai ».
+ // Même si une quantité partielle est connue, ne pas assimiler le complément inconnu à une absence.
+ const normalizedName=name=>String(name).toLocaleLowerCase('fr').normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/\s+/g,' ').trim();
+ const unknownEntries=Object.entries(state.unknown||{}).filter(([name,value])=>{
+   if(value===null||value===false)return false;
+   const canonical=UNKNOWN_TO_CATALOG[name]||name;
+   return normalizedName(canonical)===normalizedName(key);
+ });
  if(unknownEntries.length)return {status:'uncertain',available:known};
  const packages=Object.entries(state.packages||{}).some(([name,count])=>PACKAGE_TO_CATALOG[name]===key&&Number(count)>0);
  if(packages)return {status:'uncertain',available:known};
  return {status:'missing',available:known};
+}
+// Petits ingrédients facultatifs : uniquement condiments et garnitures.
+// Ne jamais classer protéines, légumes principaux ou féculents comme facultatifs.
+const OPTIONAL_INGREDIENT_PATTERN=/(?:^|\b)(?:sauce soja|sauce nuoc.mam|sauce worcestershire|sauce piquante|sauce barbecue|sauce sriracha|sauce teriyaki|sauce tomate concentree|graines? de sesame|sesame|ciboulette|persil|basilic|coriandre|menthe|aneth|thym|romarin|origan|herbes? de provence|herbes? aromatiques?|épices?|paprika|cumin|curcuma|curry|poivre|piment|muscade|cannelle|ail en poudre|gingembre en poudre|moutarde|vinaigre|huile d.olive|huile de tournesol|huile de sésame)(?:\b|$)/i;
+function isOptionalIngredient(key){
+ const normalized=String(key).toLocaleLowerCase('fr').normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+ return OPTIONAL_INGREDIENT_PATTERN.test(normalized);
+}
+function splitMinorMissing(missing){
+ return {essential:missing.filter(x=>!isOptionalIngredient(x.key)),minor:missing.filter(x=>isOptionalIngredient(x.key))};
 }
 function deficit(recipe,people){let missing=[],uncertain=[];for(let [key,per] of Object.entries(recipe.ing)){
  let needed=per*people*(['oeufs','steaks hachés'].includes(key)?catalog[key].grams:1),a=availability(key,needed);
@@ -490,8 +507,9 @@ function addMenuPhotos(container,items){
  for(const r of items){const fig=document.createElement('figure');fig.className='menu-photo';fig.append(recipePicture(r));const caption=document.createElement('figcaption');caption.textContent=(r.type==='entrée'?'Entrée : ':'Plat : ')+r.name;fig.append(caption);strip.append(fig);}container.append(strip);
 }
 function renderOffers(people){const root=document.getElementById('suggestions');root.replaceChildren();document.getElementById('refreshMenus').classList.toggle('hidden',menuPool.length===0);if(!offered.length){root.innerHTML='<div class="warn">Aucun menu supplémentaire réalisable avec le stock et les critères sélectionnés. Le mode « Uniquement ce que j’ai » reste actif. Vous pouvez ajuster la durée, les quantités ou choisir vous-même d’autoriser des achats.</div>';return;}
- offered.forEach((m,i)=>{const div=document.createElement('div');div.className='recipe';const notice=m.nutrition.status==='unknown'?'<div class="warn small">⚠️ Potassium et sel non vérifiés : compatibilité médicale inconnue.</div>':`<div class="ok small">Potassium : ${Math.round(m.nutrition.potassiumMg)} mg ; sel : ${m.nutrition.saltG.toFixed(2)} g par personne.</div>`;const uncertainNote=m.uncertain&&m.uncertain.length?`<div class="warn small">Quantité à vérifier avant de cuisiner : ${m.uncertain.map(x=>escapeHtml(x.key)).join(', ')}.</div>`:'';const miss=m.missing.length?`<div class="warn small">Manque : ${m.missing.map(x=>escapeHtml(x.key+' ('+toDisplay(x.key,x.need)+')')).join(', ')}</div>`:'<div class="ok small">Tous les ingrédients sont disponibles.</div>';
- div.innerHTML=`<h3>Menu ${i+1}</h3><button type="button" class="secondary detail" style="width:100%;text-align:left;white-space:normal">🥗 ${escapeHtml(m.e.name)}<br>🍽️ ${escapeHtml(m.p.name)}<br><small>${people} personne(s) · ${m.time<30?'⚡ EXPRESS · ':''}environ ${m.time} min (estimation) · Voir la recette complète ▼</small></button>${miss}${uncertainNote}${notice}<div class="details hidden"></div>`;
+ offered.forEach((m,i)=>{const div=document.createElement('div');div.className='recipe';const notice=m.nutrition.status==='unknown'?'<div class="warn small">⚠️ Potassium et sel non vérifiés : compatibilité médicale inconnue.</div>':`<div class="ok small">Potassium : ${Math.round(m.nutrition.potassiumMg)} mg ; sel : ${m.nutrition.saltG.toFixed(2)} g par personne.</div>`;const uncertainNote=m.uncertain&&m.uncertain.length?`<div class="warn small">Quantité à vérifier avant de cuisiner : ${m.uncertain.map(x=>escapeHtml(x.key)).join(', ')}.</div>`:'';const minorNote=m.minorMissing&&m.minorMissing.length?`<div class="warn small">🧂 Petits ingrédients facultatifs absents : ${m.minorMissing.map(x=>escapeHtml(x.key)).join(', ')}. Recette proposée quand même : à omettre ou à acheter selon votre goût.</div>`:'';
+ const miss=m.missing.length?`<div class="warn small">Manque : ${m.missing.map(x=>escapeHtml(x.key+' ('+toDisplay(x.key,x.need)+')')).join(', ')}</div>`:(!m.minorMissing?.length?'<div class="ok small">Tous les ingrédients sont disponibles.</div>':'');
+ div.innerHTML=`<h3>Menu ${i+1}</h3><button type="button" class="secondary detail" style="width:100%;text-align:left;white-space:normal">🥗 ${escapeHtml(m.e.name)}<br>🍽️ ${escapeHtml(m.p.name)}<br><small>${people} personne(s) · ${m.time<30?'⚡ EXPRESS · ':''}environ ${m.time} min (estimation) · Voir la recette complète ▼</small></button>${miss}${minorNote}${uncertainNote}${notice}<div class="details hidden"></div>`;
   addMenuPhotos(div,[m.e,m.p]);
  div.querySelector('.detail').onclick=()=>{const d=div.querySelector('.details');const wasHidden=d.classList.contains('hidden');d.classList.toggle('hidden');if(wasHidden)d.innerHTML=menuDetails(m,people)};
  const btn=document.createElement('button');btn.className='secondary';btn.textContent='Repas préparé : déduire les ingrédients';btn.disabled=!!m.missing.length;btn.onclick=()=>{if(!confirm(`Confirmer la préparation pour ${people} personne(s) et déduire les ingrédients du stock ?`))return;const combined={};for(const r of [m.e,m.p])for(const [k,v] of Object.entries(r.ing))combined[k]=(combined[k]||0)+v*people*(['oeufs','steaks hachés'].includes(k)?catalog[k].grams:1);for(const [k,g] of Object.entries(combined))if((state.stock[k]||0)>0)state.stock[k]=Math.max(0,(state.stock[k]||0)-g);btn.disabled=true;save();suggest();alert('Quantités connues déduites. Les ingrédients de quantité inconnue restent à vérifier et à mettre à jour manuellement.')};div.append(btn);root.append(div)});
@@ -542,12 +560,17 @@ function suggest(){
  for(const e of entries)for(const p of plats){
   const time=Math.max(e.min,p.min)+Math.min(10,e.min);if(time>max)continue;
   const combined={ing:{}};for(const r of [e,p])for(const [k,v] of Object.entries(r.ing))combined.ing[k]=(combined.ing[k]||0)+v;
-  const availabilityResult=deficit(combined,people),missing=availabilityResult.missing,uncertain=availabilityResult.uncertain;if(!allow&&missing.length)continue;
+  const availabilityResult=deficit(combined,people),uncertain=availabilityResult.uncertain;
+  const parts=splitMinorMissing(availabilityResult.missing);
+  const missing=allow?availabilityResult.missing:parts.essential;
+  const minorMissing=allow?[]:parts.minor;
+  // En mode stock seul : maximum trois condiments/garnitures manquants.
+  if(!allow&&(missing.length||minorMissing.length>3))continue;
   const nutrition=nutritionForMenu(e,p);if(nutrition.status==='exceeded')continue;
-  possibilities.push({e,p,time,missing,uncertain,nutrition,score:missing.reduce((sum,m)=>sum+m.need,0)+missing.length*150});
+  possibilities.push({e,p,time,missing,minorMissing,uncertain,nutrition,score:missing.reduce((sum,m)=>sum+m.need,0)+missing.length*150});
  }
  possibilities.sort((a,b)=>menuRank(b)-menuRank(a)||a.score-b.score||a.time-b.time);
- const signature=JSON.stringify({people,max,allow,speed:document.getElementById('speedPriority').value,stock:state.stock,packages:state.packages});
+ const signature=JSON.stringify({minorPolicy:'max3',people,max,allow,speed:document.getElementById('speedPriority').value,stock:state.stock,packages:state.packages,unknown:state.unknown});
  if(signature!==menuSignature){shownMenus.clear();lastFamilies.clear();menuSignature=signature;}
  menuPool=possibilities;
  // Respecter strictement le choix de l’utilisateur, même avec moins de trois familles.
@@ -566,7 +589,7 @@ function suggestWithMissing(people,max,entries,plats){
  }
  possibilities.sort((a,b)=>menuRank(b)-menuRank(a)||a.score-b.score||a.time-b.time);
  menuPool=possibilities;shownMenus.clear();lastFamilies.clear();
- menuSignature=JSON.stringify({people,max,allow:true,speed:document.getElementById('speedPriority').value,stock:state.stock,packages:state.packages});
+ menuSignature=JSON.stringify({people,max,allow:true,speed:document.getElementById('speedPriority').value,stock:state.stock,packages:state.packages,unknown:state.unknown});
  expandedMenus=true;drawThree();
 }
 function refreshDiverse(){
