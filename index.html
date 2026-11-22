@@ -9,7 +9,7 @@
 .menu-photo .photo-status{display:flex;align-items:center;justify-content:center;min-height:145px;color:#59685d;font-size:12px;padding:12px;text-align:center}
 .menu-photo .photo-credit{font-size:10px;color:#657369;display:block}
 @media(max-width:390px){.menu-photo img,.menu-photo .photo-status{height:115px;min-height:115px}}
-.recipe-picture{width:100%;height:180px;object-fit:cover;display:block;border-radius:12px;margin:8px 0}.menu-photo .recipe-picture{height:145px}  .recipe-photo-placeholder{display:flex;align-items:center;justify-content:center;background:#f3f4ee;color:#526454;min-height:100px;border-radius:10px;font-size:14px;text-align:center;padding:12px;} </style></head><body><div class="wrap"><header><div><h1>🥕 Mon Frigo</h1><div class="muted">Cuisine familiale · sans abonnement ni IA</div></div><span class="pill">V1 locale</span></header><nav class="tabs" id="tabs"><button data-tab="menu" class="active">🍽️ Menus</button><button data-tab="stock">🧺 Inventaire</button><button data-tab="recipes">📖 Recettes</button><button data-tab="settings">⚙️ Réglages</button></nav>
+.recipe-picture{width:100%;height:180px;object-fit:cover;display:block;border-radius:12px;margin:8px 0}.menu-photo .recipe-picture{height:145px}  .recipe-photo-placeholder{display:flex;align-items:center;justify-content:center;background:#f3f4ee;color:#526454;min-height:100px;border-radius:10px;font-size:14px;text-align:center;padding:12px;} </style></head><body><div id="js-status" role="alert" style="background:#fff1dc;color:#743d00;padding:14px 18px;font:16px system-ui;border-bottom:2px solid #d9a342">⚠️ Cette prévisualisation ne permet peut-être pas d’exécuter JavaScript. Pour utiliser les boutons, ouvrez le fichier HTML dans Chrome, Firefox ou Safari, ou utilisez la page GitHub Pages publiée.</div><div class="wrap"><header><div><h1>🥕 Mon Frigo</h1><div class="muted">Cuisine familiale · sans abonnement ni IA</div></div><span class="pill">V1 locale</span></header><nav class="tabs" id="tabs"><button data-tab="menu" class="active">🍽️ Menus</button><button data-tab="stock">🧺 Inventaire</button><button data-tab="recipes">📖 Recettes</button><button data-tab="settings">⚙️ Réglages</button></nav>
 <section id="menu" class="page"><div class="card"><h2>Qu'est-ce qu'on mange ?</h2><div class="grid"><div><label>Nombre de personnes</label><input id="people" type="number" min="1" max="12" value="2"></div><div><label>Temps maximum</label><select id="minutes"><option value="15">15 minutes</option><option value="20">20 minutes</option><option value="25">25 minutes</option><option value="30">30 minutes</option><option value="45">45 minutes</option><option value="60" selected>1 heure</option></select></div></div><label>Priorité des recettes</label><select id="speedPriority"><option value="balanced" selected>Variété + recettes express</option><option value="express">Priorité aux menus de moins de 30 min</option><option value="discovery">Découverte de nouvelles saveurs</option></select><p class="muted small">Les recettes express restent proposées même si vous autorisez jusqu’à 1 heure. La durée concerne le menu complet.</p><label>Ingrédients</label><select id="preference"><option value="missing" selected>Toutes les recettes (achats signalés)</option><option value="available">Uniquement ce que j'ai</option></select><div class="warn" role="status"><strong>Filtre nutritionnel :</strong> plafonds par personne et par repas (entrée + plat) : potassium 1 500 mg, sel 2 g. Les menus dont un dépassement est connu sont exclus. Les menus sans valeurs nutritionnelles vérifiées restent proposés avec un avertissement, sans garantie de compatibilité médicale. Aucune question sur les repas précédents.</div><p><button id="suggest">Proposer 3 menus</button></p><div id="suggestions"></div><p><button id="refreshMenus" class="secondary hidden" type="button">🔄 Proposer 3 autres menus</button></p></div></section>
 <section id="stock" class="page hidden"><div class="card"><h2>Modifier mon inventaire</h2><div class="warn small">Tous les produits identifiés sont préchargés, y compris ceux dont la quantité est inconnue. Modifiez directement les quantités dans le tableau ci-dessous ou supprimez les lignes. Les quantités inconnues ne sont jamais considérées comme disponibles en quantité illimitée.</div><p class="muted">Écrivez par exemple « J'ajoute 4 carottes », « J'ai utilisé 2 endives », « Il me reste 3 oranges », « Je n'ai plus de riz ». Vous pouvez citer plusieurs aliments dans une même phrase. Sans quantité précisée, l’aliment sera ajouté avec « quantité à compléter ». Le tableau se met à jour immédiatement.</p><textarea id="command" placeholder="J'ai acheté 4 carottes"></textarea><p class="muted small">Pour les conserves, indiquez le nombre d’emballages, par exemple « J’ajoute 2 boîtes de maïs » ou « Je n’ai plus de pesto ».</p><p><button id="parse">Mettre à jour mon inventaire</button></p><div id="parsed"></div><hr><h2>Ajouter manuellement</h2><div class="grid"><div><label>Aliment</label><input id="food" list="foodlist" placeholder="Ex. carottes"><datalist id="foodlist"></datalist></div><div><label>Quantité</label><input id="amount" type="number" min="0.01" step="any" value="1"></div><div><label>Unité</label><select id="unit"><option value="pièce">Pièce(s)</option><option value="g">Grammes</option><option value="kg">Kilogrammes</option><option value="portion">Portion(s)</option></select></div><div><label>Lieu</label><select id="location"><option value="frigo">Réfrigérateur</option><option value="congelateur">Congélateur</option><option value="placard">Placard</option></select></div></div><p><button id="add">Ajouter au stock</button></p></div><div class="card"><h2>Mes aliments</h2><p class="muted small">Saisissez une quantité et cliquez sur « Enregistrer ». Le bouton « Supprimer » retire le produit de la liste. Les valeurs inconnues sont à compléter.</p><div id="stocklist"></div></div></section>
 <section id="recipes" class="page hidden"><div class="card"><h2>Bibliothèque de recettes</h2><p class="muted">Bibliothèque enrichie : plats régionaux et cuisines du monde, recettes express et préparations traditionnelles. Certaines sont des adaptations rapides et non des versions historiques authentiques. Les fiches n’ont pas toutes été vérifiées auprès d’une source culinaire. Les méthodes alternatives ne sont proposées que pour des recettes identifiées. Valeurs nutritionnelles non vérifiées : les seuils médicaux ne peuvent pas être garantis.</p><div class="grid"><div><label for="recipeSearch">Rechercher une recette</label><input id="recipeSearch" placeholder="Ex. basquaise, curry, Normandie"></div><div><label for="recipeDuration">Durée</label><select id="recipeDuration"><option value="60">Jusqu’à 60 min</option><option value="29">Express : moins de 30 min</option><option value="45">Jusqu’à 45 min</option></select></div></div><label for="recipeType">Type</label><select id="recipeType"><option value="all">Entrées et plats</option><option value="entrée">Entrées</option><option value="plat">Plats</option></select><p id="recipeCount" class="muted small"></p><div id="recipelist"></div></div></section>
@@ -275,8 +275,8 @@ function availability(key,needed){
  // Même si une quantité partielle est connue, ne pas assimiler le complément inconnu à une absence.
  const normalizedName=name=>String(name).toLocaleLowerCase('fr').normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/\s+/g,' ').trim();
  const unknownEntries=Object.entries(state.unknown||{}).filter(([name,value])=>{
-   if(value===null||value===false)return false;
-   const canonical=UNKNOWN_TO_CATALOG[name]||name;
+   if(value===false)return false; // null signifie « présent, quantité non précisée » dans l'inventaire initial
+   const canonical=UNKNOWN_TO_CATALOG[name]||lookup(name)||name;
    return normalizedName(canonical)===normalizedName(key);
  });
  if(unknownEntries.length)return {status:'uncertain',available:known};
@@ -289,7 +289,7 @@ function availability(key,needed){
 const OPTIONAL_INGREDIENT_PATTERN=/(?:^|\b)(?:sauce soja|sauce nuoc.mam|sauce worcestershire|sauce piquante|sauce barbecue|sauce sriracha|sauce teriyaki|sauce tomate concentree|graines? de sesame|sesame|ciboulette|persil|basilic|coriandre|menthe|aneth|thym|romarin|origan|herbes? de provence|herbes? aromatiques?|épices?|paprika|cumin|curcuma|curry|poivre|piment|muscade|cannelle|ail en poudre|gingembre en poudre|moutarde|vinaigre|huile d.olive|huile de tournesol|huile de sésame)(?:\b|$)/i;
 function isOptionalIngredient(key){
  const normalized=String(key).toLocaleLowerCase('fr').normalize('NFD').replace(/[\u0300-\u036f]/g,'');
- return OPTIONAL_INGREDIENT_PATTERN.test(normalized);
+ return OPTIONAL_INGREDIENT_PATTERN.test(normalized)||OPTIONAL_INGREDIENT_PATTERN.test(String(key));
 }
 function splitMinorMissing(missing){
  return {essential:missing.filter(x=>!isOptionalIngredient(x.key)),minor:missing.filter(x=>isOptionalIngredient(x.key))};
@@ -506,7 +506,51 @@ function addMenuPhotos(container,items){
  const strip=document.createElement('div');strip.className='menu-photos';
  for(const r of items){const fig=document.createElement('figure');fig.className='menu-photo';fig.append(recipePicture(r));const caption=document.createElement('figcaption');caption.textContent=(r.type==='entrée'?'Entrée : ':'Plat : ')+r.name;fig.append(caption);strip.append(fig);}container.append(strip);
 }
-function renderOffers(people){const root=document.getElementById('suggestions');root.replaceChildren();document.getElementById('refreshMenus').classList.toggle('hidden',menuPool.length===0);if(!offered.length){root.innerHTML='<div class="warn">Aucun menu supplémentaire réalisable avec le stock et les critères sélectionnés. Le mode « Uniquement ce que j’ai » reste actif. Vous pouvez ajuster la durée, les quantités ou choisir vous-même d’autoriser des achats.</div>';return;}
+
+// Un plat réalisable ne doit pas disparaître uniquement faute d'entrée de crudités.
+// Afficher séparément les plats compatibles, sans prétendre qu'il s'agit d'un menu complet.
+function renderAvailableDishes(people,max){
+ const root=document.getElementById('suggestions');
+ const options=recipes.filter(r=>r.type==='plat'&&r.min<=max).map(r=>{
+   const d=deficit(r,people),parts=splitMinorMissing(d.missing);
+   return {r,essential:parts.essential,minor:parts.minor,uncertain:d.uncertain};
+ }).filter(x=>!x.essential.length&&x.minor.length<=3)
+ .sort((a,b)=>a.minor.length-b.minor.length||a.r.min-b.r.min);
+ if(!options.length){
+   // Aucun plat strictement faisable : montrer des alternatives proches en indiquant
+   // clairement les ingrédients principaux manquants, sans les qualifier de disponibles.
+   const nearby=recipes.filter(r=>r.type==='plat'&&r.min<=max).map(r=>{
+     const d=deficit(r,people),parts=splitMinorMissing(d.missing);
+     return {r,essential:parts.essential,minor:parts.minor,uncertain:d.uncertain};
+   }).filter(x=>x.essential.length<=2&&x.minor.length<=3)
+   .sort((a,b)=>a.essential.length-b.essential.length||a.minor.length-b.minor.length||a.r.min-b.r.min).slice(0,8);
+   if(nearby.length){
+     root.innerHTML='<div class="warn">Aucun plat entièrement réalisable avec les ingrédients enregistrés. Voici les recettes les plus proches ; les ingrédients principaux manquants sont signalés et nécessitent un achat.</div>';
+     for(const x of nearby){
+       const d=document.createElement('details');d.className='recipe';
+       const h=document.createElement('summary');h.textContent='🍽️ '+x.r.name+' · '+x.r.min+' min';d.append(h);
+       const b=document.createElement('div');b.innerHTML='<p><strong>À acheter :</strong> '+escapeHtml(x.essential.map(y=>y.key).join(', '))+'</p>'+(x.minor.length?'<p>Condiments facultatifs : '+escapeHtml(x.minor.map(y=>y.key).join(', '))+'</p>':'')+'<p>⚠️ Valeurs nutritionnelles non vérifiées.</p><ol>'+x.r.steps.map(t=>'<li>'+escapeHtml(t)+'</li>').join('')+'</ol>';d.append(b);root.append(d);
+     }
+     return;
+   }
+   const stockNames=[...Object.entries(state.stock||{}).filter(([,v])=>Number(v)>0).map(([k])=>k),...Object.keys(state.unknown||{})];
+   root.innerHTML='<div class="warn">Aucun menu complet ni plat seul compatible avec les ingrédients enregistrés et la durée choisie. Vérifiez les ingrédients dans l’inventaire. Ingrédients reconnus : '+escapeHtml(stockNames.length?stockNames.join(', '):'aucun')+'. Vous pouvez augmenter la durée ou compléter l’inventaire.</div>';
+   return;
+ }
+ root.innerHTML='<div class="warn">Aucun menu complet « entrée + plat » disponible actuellement. Voici des <strong>plats réalisables avec votre stock</strong>, même sans entrée de crudités.</div>';
+ for(const item of options.slice(0,12)){
+   const div=document.createElement('details');div.className='recipe';
+   const summary=document.createElement('summary');summary.textContent='🍽️ '+item.r.name+' · '+item.r.min+' min';div.append(summary);
+   const note=document.createElement('div');
+   note.innerHTML=(item.minor.length?'<p>🧂 Facultatifs manquants : '+escapeHtml(item.minor.map(x=>x.key).join(', '))+'</p>':'')
+    +(item.uncertain.length?'<p>⚠️ Quantités à confirmer : '+escapeHtml(item.uncertain.map(x=>x.key).join(', '))+'</p>':'')
+    +'<p>⚠️ Potassium et sel non vérifiés.</p><p><strong>Ingrédients :</strong></p><ul>'
+    +Object.entries(item.r.ing).map(([k,v])=>'<li>'+escapeHtml(ingredientText(k,v,people))+'</li>').join('')
+    +'</ul><p><strong>Préparation :</strong></p><ol>'+item.r.steps.map(x=>'<li>'+escapeHtml(x)+'</li>').join('')+'</ol>'+cookingGuidance(item.r);
+   div.append(note);root.append(div);
+ }
+}
+function renderOffers(people){const root=document.getElementById('suggestions');root.replaceChildren();document.getElementById('refreshMenus').classList.toggle('hidden',menuPool.length===0);if(!offered.length){if(document.getElementById('preference').value==='available'){renderAvailableDishes(people,Number(document.getElementById('minutes').value));return;}root.innerHTML='<div class="warn">Aucun menu supplémentaire disponible avec les critères sélectionnés.</div>';return;}
  offered.forEach((m,i)=>{const div=document.createElement('div');div.className='recipe';const notice=m.nutrition.status==='unknown'?'<div class="warn small">⚠️ Potassium et sel non vérifiés : compatibilité médicale inconnue.</div>':`<div class="ok small">Potassium : ${Math.round(m.nutrition.potassiumMg)} mg ; sel : ${m.nutrition.saltG.toFixed(2)} g par personne.</div>`;const uncertainNote=m.uncertain&&m.uncertain.length?`<div class="warn small">Quantité à vérifier avant de cuisiner : ${m.uncertain.map(x=>escapeHtml(x.key)).join(', ')}.</div>`:'';const minorNote=m.minorMissing&&m.minorMissing.length?`<div class="warn small">🧂 Petits ingrédients facultatifs absents : ${m.minorMissing.map(x=>escapeHtml(x.key)).join(', ')}. Recette proposée quand même : à omettre ou à acheter selon votre goût.</div>`:'';
  const miss=m.missing.length?`<div class="warn small">Manque : ${m.missing.map(x=>escapeHtml(x.key+' ('+toDisplay(x.key,x.need)+')')).join(', ')}</div>`:(!m.minorMissing?.length?'<div class="ok small">Tous les ingrédients sont disponibles.</div>':'');
  div.innerHTML=`<h3>Menu ${i+1}</h3><button type="button" class="secondary detail" style="width:100%;text-align:left;white-space:normal">🥗 ${escapeHtml(m.e.name)}<br>🍽️ ${escapeHtml(m.p.name)}<br><small>${people} personne(s) · ${m.time<30?'⚡ EXPRESS · ':''}environ ${m.time} min (estimation) · Voir la recette complète ▼</small></button>${miss}${minorNote}${uncertainNote}${notice}<div class="details hidden"></div>`;
@@ -639,4 +683,5 @@ for(let key of Object.keys(catalog)){let opt=document.createElement('option');op
  }catch(err){alert('Sauvegarde invalide : aucun changement appliqué.');}
  finally{e.target.value=''}
 };document.getElementById('reset').onclick=()=>{if(confirm('Vider définitivement l’inventaire local ?')){state.stock={};state.packages={};state.unknown={};state.unknownInitialized=true;state.packagesInitialized=true;save()}};renderStock();renderRecipes();
+;(()=>{const n=document.getElementById('js-status');if(n)n.remove()})();
 </script></body></html>
